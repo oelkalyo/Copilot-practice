@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CSP Contract – FLD9271048302-2001</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#f3f2ef;--surface:#fff;--surface-alt:#f8fafc;--surface-hover:#f3f2f0;--sidebar:#1d2226;--sidebar-hover:rgba(255,255,255,.08);--border:#e0e0e0;--text:rgba(0,0,0,.9);--muted:rgba(0,0,0,.6);--muted-2:rgba(0,0,0,.45);--accent:#0a66c2;--accent-hover:#004182;--success:#057642;--success-bg:#e9f8f0;--warning:#b67100;--warning-bg:#fdf3e3;--danger:#cc1016;--danger-bg:#fdecec;--radius:8px;--pill:24px;--shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.02)}
+  .dark{--bg:#111b24;--surface:#1d2226;--surface-alt:#26313c;--surface-hover:#2d3944;--sidebar:#0f1419;--border:#38434f;--text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.68);--muted-2:rgba(255,255,255,.52);--accent:#70b5f9;--accent-hover:#9cc9f5;--success:#6fd3a3;--success-bg:#16332a;--warning:#f8c77e;--warning-bg:#3a2c14;--danger:#ff9b9b;--danger-bg:#3a1c1e;--shadow:0 4px 24px rgba(0,0,0,.22)}
+  html,body{min-height:100%}
+  body{font-family:"LinkedIn Sans",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);transition:background .2s,color .2s;padding-left:72px}
+  .topbar{background:var(--sidebar);color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+  .linkedin-mark{width:28px;height:28px;border-radius:6px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem}
+  .theme-toggle{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600;cursor:pointer}
+  main{max-width:960px;margin:28px auto;padding:0 20px 60px}
+  .breadcrumb{font-size:.85rem;color:var(--muted);margin-bottom:16px}
+  .breadcrumb a{color:var(--accent);text-decoration:none} .breadcrumb a:hover{text-decoration:underline}
+  .header-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+  .header-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+  h1{font-size:1.4rem;margin-bottom:4px} .contract-id{color:var(--muted);font-size:.95rem}
+  .status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--pill);font-size:.85rem;font-weight:700}
+  .status-active{background:var(--success-bg);color:var(--success)} .status-terminated{background:var(--danger-bg);color:var(--danger)} .status-replacement{background:var(--warning-bg);color:var(--warning)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:20px}
+  .field-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-2);margin-bottom:4px} .field-value{font-size:.95rem;font-weight:500}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+  .card h2{font-size:1.05rem;margin-bottom:6px} .card .subtitle{color:var(--muted);font-size:.85rem;margin-bottom:16px}
+  .swap-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-alt);margin-bottom:10px}
+  .swap-item:last-child{margin-bottom:0} .swap-meta{display:flex;flex-direction:column;gap:2px}
+  .swap-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-2)}
+  .swap-contract-link{color:var(--accent);font-weight:600;text-decoration:none;font-size:.95rem} .swap-contract-link:hover{text-decoration:underline;color:var(--accent-hover)}
+  .swap-reason{font-size:.8rem;color:var(--muted)}
+  .sidenav{position:fixed;top:0;left:0;bottom:0;width:72px;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;padding:72px 0 20px;gap:4px;z-index:90}
+  .sidenav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;width:60px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.6);font-size:.65rem;font-weight:600;cursor:pointer;transition:background .15s,color .15s;text-align:center}
+  .sidenav-item:hover{background:var(--sidebar-hover);color:#fff} .sidenav-item.active{background:var(--accent);color:#fff}
+  .contract-panel{position:fixed;top:0;left:72px;bottom:0;width:360px;background:var(--surface);border-right:1px solid var(--border);box-shadow:4px 0 20px rgba(0,0,0,.12);z-index:80;display:flex;flex-direction:column;transform:translateX(-110%);transition:transform .25s ease}
+  .contract-panel.open{transform:translateX(0)}
+  .panel-overlay{display:none;position:fixed;inset:0;z-index:75;background:rgba(0,0,0,.25)} .panel-overlay.open{display:block}
+  .cp-header{padding:20px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border)}
+  .cp-title{font-weight:700;font-size:1.05rem} .cp-sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+  .cp-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:2px 6px;border-radius:4px} .cp-close:hover{background:var(--surface-hover);color:var(--text)}
+  .cp-search-wrap{padding:12px 16px 8px}
+  .cp-search{width:100%;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.87rem} .cp-search:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .cp-filters{display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+  .cp-filter-btn{background:var(--surface-alt);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:600;cursor:pointer}
+  .cp-filter-btn:hover{border-color:var(--accent);color:var(--accent)} .cp-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cp-list{flex:1;overflow-y:auto;padding:8px 0}
+  .cp-row{display:flex;flex-direction:column;gap:4px;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;text-decoration:none;color:inherit}
+  .cp-row:hover{background:var(--surface-hover)} .cp-row.current{background:#eff6ff;border-left:3px solid var(--accent)} .dark .cp-row.current{background:#1e3a5f}
+  .cp-row-top{display:flex;align-items:center;justify-content:space-between} .cp-contract-id{font-weight:700;font-size:.88rem;color:var(--accent)}
+  .cp-row-meta{display:flex;gap:16px;font-size:.78rem;color:var(--muted);margin-top:3px} .cp-amount{font-weight:600;font-size:.85rem;color:var(--text)}
+  .cp-related{padding:6px 18px 10px;border-bottom:1px solid var(--border);background:var(--surface-alt);display:flex;flex-direction:column;gap:4px}
+  .cp-related-link{font-size:.78rem;color:var(--accent);text-decoration:none;display:block} .cp-related-link:hover{text-decoration:underline} .cp-related-label{color:var(--muted-2);font-weight:600}
+  .pill-active{background:#e9f8f0;color:#057642;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:700}
+  .pill-signed{background:#dbeafe;color:#1d4ed8;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:700}
+  .pill-terminated{background:#fdecec;color:#cc1016;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:700}
+  .pill-replacement{background:#fdf3e3;color:#b67100;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:700}
+  .dark .pill-active{background:#16332a;color:#6fd3a3} .dark .pill-signed{background:#1e3a5f;color:#93c5fd} .dark .pill-terminated{background:#3a1c1e;color:#ff9b9b} .dark .pill-replacement{background:#3a2c14;color:#f8c77e}
+  footer{text-align:center;color:var(--muted-2);font-size:.8rem;padding:20px 0 40px}
+</style>
+</head>
+<body>
+<nav class="sidenav">
+  <button class="sidenav-item" title="Customer Info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Customer</span></button>
+  <button class="sidenav-item active" onclick="togglePanel()" title="Contracts"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Contracts</span></button>
+  <button class="sidenav-item" title="Credit Card"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Credit Card</span></button>
+  <button class="sidenav-item" title="Activity Log"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Activity</span></button>
+</nav>
+<div class="contract-panel" id="contract-panel">
+  <div class="cp-header">
+    <div><div class="cp-title">Contracts</div><div class="cp-sub">Acme Corporation</div></div>
+    <button class="cp-close" onclick="togglePanel()">✕</button>
+  </div>
+  <div class="cp-search-wrap"><input class="cp-search" type="search" placeholder="Search contracts…" oninput="filterPanel(this.value)"/></div>
+  <div class="cp-filters">
+    <button class="cp-filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="cp-filter-btn" onclick="setFilter('active',this)">Active</button>
+    <button class="cp-filter-btn" onclick="setFilter('signed',this)">Signed</button>
+    <button class="cp-filter-btn" onclick="setFilter('terminated',this)">Terminated</button>
+    <button class="cp-filter-btn" onclick="setFilter('replacement',this)">Replacement</button>
+  </div>
+  <div class="cp-list" id="cp-list"></div>
+</div>
+<div class="panel-overlay" id="panel-overlay" onclick="togglePanel()"></div>
+<header class="topbar">
+  <div class="brand"><span class="linkedin-mark">in</span> CSP Contract Viewer</div>
+  <button class="theme-toggle" id="theme-toggle">🌙 Dark</button>
+</header>
+<main>
+  <div class="breadcrumb"><a href="swap-contracts.html">Contracts</a> &nbsp;/&nbsp; <a href="#">Customer Account</a> &nbsp;/&nbsp; FLD9271048302-2001</div>
+  <section class="header-card">
+    <div class="header-row">
+      <div><h1>Contract FLD9271048302-2001</h1><div class="contract-id">Master Agreement: FLD9271048302</div></div>
+      <span class="status-pill status-replacement">● Signed</span>
+    </div>
+    <div class="grid">
+      <div><div class="field-label">Account Name</div><div class="field-value">Acme Corporation</div></div>
+      <div><div class="field-label">Product Line</div><div class="field-value">LinkedIn Recruiter Corporate</div></div>
+      <div><div class="field-label">Start Date</div><div class="field-value">Mar 1, 2025</div></div>
+      <div><div class="field-label">End Date</div><div class="field-value">Feb 28, 2026</div></div>
+      <div><div class="field-label">Contract Value</div><div class="field-value">$12,000 / yr</div></div>
+      <div><div class="field-label">Billing Frequency</div><div class="field-value">Annual</div></div>
+      <div><div class="field-label">Account Manager</div><div class="field-value">Sarah Okonkwo</div></div>
+      <div><div class="field-label">Seats</div><div class="field-value">15 licences</div></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Contract Timeline</h2>
+    <p class="subtitle">Lifecycle of this contract chain.</p>
+    <div class="swap-item"><div class="swap-meta"><span class="swap-label">This Contract</span><span class="field-value">FLD9271048302-2001 (current page)</span></div></div>
+<div class="swap-item"><div class="swap-meta"><span class="swap-label">Replacement Contract</span><a class="swap-contract-link" href="contract-FLD9271048302-2002.html">FLD9271048302-2002</a><span class="swap-reason">Currently follows this contract</span></div></div>
+  </section>
+</main>
+<footer>Placeholder data for demonstration purposes only — not connected to live contract systems.</footer>
+<script>
+  const btn = document.getElementById('theme-toggle');
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    btn.textContent = dark ? '☀️ Light' : '🌙 Dark';
+  });
+
+  const allContracts = [
+  { id:"FLD3849201756-1001", start:"Jan 1, 2023", end:"Dec 31, 2024", amount:"$36,000/yr", status:"terminated", href:"contract-FLD3849201756-1001.html", current:false, related:[{id:"FLD3849201756-1002",label:"Replaced by",href:"swap-contracts.html"}] },
+  { id:"FLD3849201756-1002", start:"Jan 1, 2025", end:"Jun 30, 2026", amount:"$48,000/yr", status:"terminated", href:"swap-contracts.html", current:false, related:[{id:"FLD3849201756-1001",label:"Replaced",href:"contract-FLD3849201756-1001.html"},{id:"FLD3849201756-1003",label:"Replaced by",href:"swap-contracts-1003.html"}] },
+  { id:"FLD3849201756-1003", start:"Jul 1, 2026", end:"Jun 30, 2027", amount:"$64,000/yr", status:"replacement", href:"swap-contracts-1003.html", current:false, related:[{id:"FLD3849201756-1002",label:"Replaced",href:"swap-contracts.html"}] },
+  { id:"FLD9271048302-2001", start:"Mar 1, 2025", end:"Feb 28, 2026", amount:"$12,000/yr", status:"signed", href:"contract-FLD9271048302-2001.html", current:true, related:[{id:"FLD9271048302-2002",label:"Renewed by",href:"contract-FLD9271048302-2002.html"}] },
+  { id:"FLD9271048302-2002", start:"Mar 1, 2026", end:"Feb 28, 2027", amount:"$15,600/yr", status:"active", href:"contract-FLD9271048302-2002.html", current:false, related:[{id:"FLD9271048302-2001",label:"Renewed from",href:"contract-FLD9271048302-2001.html"}] },
+  { id:"FLD5530184927-3001", start:"Jun 1, 2026", end:"May 31, 2027", amount:"$8,400/yr", status:"active", href:"contract-FLD5530184927-3001.html", current:false, related:[] },
+  { id:"FLD7710293845-4001", start:"Jan 1, 2024", end:"Dec 31, 2024", amount:"$24,000/yr", status:"terminated", href:"contract-FLD7710293845-4001.html", current:false, related:[{id:"FLD7710293845-4002",label:"Replaced by",href:"contract-FLD7710293845-4002.html"}] },
+  { id:"FLD7710293845-4002", start:"Jan 1, 2025", end:"Dec 31, 2025", amount:"$28,800/yr", status:"signed", href:"contract-FLD7710293845-4002.html", current:false, related:[{id:"FLD7710293845-4001",label:"Replaced",href:"contract-FLD7710293845-4001.html"}] }
+];
+  let activeFilter = 'all', panelOpen = false;
+
+  function pillHtml(s) { return `<span class="pill-${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</span>`; }
+
+  function relatedHtml(related) {
+    if (!related || !related.length) return '';
+    return `<div class="cp-related">${related.map(r=>`<a class="cp-related-link" href="${r.href}">↳ <span class="cp-related-label">${r.label}:</span> ${r.id}</a>`).join('')}</div>`;
+  }
+
+  function renderPanel(q='', filter='all') {
+    const list = document.getElementById('cp-list');
+    const filtered = allContracts.filter(c => {
+      return c.id.toLowerCase().includes(q.toLowerCase()) && (filter==='all' || c.status===filter);
+    });
+    if (!filtered.length) { list.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:.87rem">No contracts found.</div>'; return; }
+    list.innerHTML = filtered.map(c => `
+      <div class="cp-row-wrap">
+        <a class="cp-row${c.current?' current':''}" href="${c.href}">
+          <div class="cp-row-top"><span class="cp-contract-id">${c.id}</span>${pillHtml(c.status)}</div>
+          <div class="cp-row-meta"><span>📅 ${c.start} → ${c.end}</span></div>
+          <div class="cp-amount">${c.amount}</div>
+        </a>
+        ${filter !== 'all' ? relatedHtml(c.related) : ''}
+      </div>`).join('');
+  }
+
+  function togglePanel() {
+    panelOpen = !panelOpen;
+    document.getElementById('contract-panel').classList.toggle('open', panelOpen);
+    document.getElementById('panel-overlay').classList.toggle('open', panelOpen);
+    if (panelOpen) renderPanel();
+  }
+
+  function filterPanel(q) { renderPanel(q, activeFilter); }
+
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.cp-filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderPanel(document.querySelector('.cp-search').value, f);
+  }
+</script>
+</body>
+</html>
