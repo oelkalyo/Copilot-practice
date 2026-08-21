@@ -169,6 +169,20 @@
     white-space: nowrap;
   }
 
+  .request-status-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 16px; padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-alt);
+  }
+  .request-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: var(--pill);
+    font-size: 0.8rem; font-weight: 700; white-space: nowrap;
+  }
+  .request-case-num { color: var(--muted); font-size: 0.85rem; }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -465,49 +479,69 @@
         startDate,
         endDate,
         totalValue,
-        remainingCycles
+        remainingCycles,
+        requestStatus: null // set once an expedite request has been submitted
       };
     }
 
     const CONTRACTS = [0, 1, 2, 3].map(i => generateContract(i));
 
+    const STATUS_STYLES = {
+      'Submitted': { bg: '#e8f0fe', color: '#0a66c2' },
+      'In Progress': { bg: 'var(--warning-bg)', color: 'var(--warning)' },
+      'Solved': { bg: 'var(--success-bg)', color: 'var(--success)' }
+    };
+
     // ---- Render contracts list ----
     const contractsListEl = document.getElementById('contracts-list');
-    CONTRACTS.forEach(contract => {
-      const el = document.createElement('div');
-      el.className = 'card contract-card';
-      el.innerHTML = `
-        <div class="header-row">
-          <div>
-            <div class="contract-title">${contract.id}</div>
-            <div class="contract-sub">${contract.product} · ${contract.accountName}</div>
+    function renderContracts() {
+      contractsListEl.innerHTML = '';
+      CONTRACTS.forEach(contract => {
+        const el = document.createElement('div');
+        el.className = 'card contract-card';
+        const req = contract.requestStatus;
+        const requestBadge = req
+          ? `<div class="request-status-row">
+               <span class="field-label" style="margin-bottom:0;">Expedite Request</span>
+               <span class="request-pill" style="background:${STATUS_STYLES[req.status].bg}; color:${STATUS_STYLES[req.status].color};">● ${req.status}</span>
+               <span class="request-case-num">${req.caseNumber}</span>
+             </div>`
+          : '';
+        el.innerHTML = `
+          <div class="header-row">
+            <div>
+              <div class="contract-title">${contract.id}</div>
+              <div class="contract-sub">${contract.product} · ${contract.accountName}</div>
+            </div>
+            <span class="status-pill">● Active</span>
           </div>
-          <span class="status-pill">● Active</span>
-        </div>
-        <div class="grid">
-          <div>
-            <div class="field-label">Start Date</div>
-            <div class="field-value">${formatDate(contract.startDate)}</div>
+          <div class="grid">
+            <div>
+              <div class="field-label">Start Date</div>
+              <div class="field-value">${formatDate(contract.startDate)}</div>
+            </div>
+            <div>
+              <div class="field-label">End Date</div>
+              <div class="field-value">${formatDate(contract.endDate)}</div>
+            </div>
+            <div>
+              <div class="field-label">Billing Frequency</div>
+              <div class="field-value">${contract.frequencyLabel}</div>
+            </div>
+            <div>
+              <div class="field-label">Upcoming Invoice(s)</div>
+              <div class="field-value">${contract.remainingCycles.length}</div>
+            </div>
           </div>
-          <div>
-            <div class="field-label">End Date</div>
-            <div class="field-value">${formatDate(contract.endDate)}</div>
+          ${requestBadge}
+          <div class="actions">
+            <button class="btn btn-primary" data-contract-id="${contract.id}">Request Expediting Invoices</button>
           </div>
-          <div>
-            <div class="field-label">Billing Frequency</div>
-            <div class="field-value">${contract.frequencyLabel}</div>
-          </div>
-          <div>
-            <div class="field-label">Upcoming Invoice(s)</div>
-            <div class="field-value">${contract.remainingCycles.length}</div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-primary" data-contract-id="${contract.id}">Request Expediting Invoices</button>
-        </div>
-      `;
-      contractsListEl.appendChild(el);
-    });
+        `;
+        contractsListEl.appendChild(el);
+      });
+    }
+    renderContracts();
 
     // ---- Panel navigation state ----
     const contractsView = document.getElementById('contracts-view');
@@ -521,6 +555,7 @@
     let activeContract = null;
 
     function showContractsView() {
+      renderContracts();
       contractsView.style.display = 'block';
       expeditePanel.style.display = 'none';
       confirmationPanel.style.display = 'none';
@@ -609,6 +644,13 @@
       if (selected.length === 0 || !ackCheckbox.checked || !activeContract) return;
 
       const caseNumber = 'CAS-' + Math.floor(100000 + Math.random() * 900000);
+
+      // Randomly assign an initial status for demo purposes (in production this would start as "Submitted").
+      const statusOptions = ['Submitted', 'In Progress', 'Solved'];
+      activeContract.requestStatus = {
+        caseNumber,
+        status: pick(statusOptions)
+      };
 
       // Payload representing what would be sent to Dynamics CRM's case creation API.
       const dynamicsCasePayload = {
