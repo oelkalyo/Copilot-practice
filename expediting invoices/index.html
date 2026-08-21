@@ -13,6 +13,7 @@
     --surface-alt: #f8fafc;
     --surface-hover: #f3f2f0;
     --sidebar: #1d2226;
+    --sidebar-hover: rgba(255,255,255,.08);
     --border: #e0e0e0;
     --text: rgba(0,0,0,.9);
     --muted: rgba(0,0,0,.6);
@@ -35,6 +36,8 @@
     --surface: #1d2226;
     --surface-alt: #26313c;
     --surface-hover: #2d3944;
+    --sidebar: #0f1419;
+    --sidebar-hover: rgba(255,255,255,.08);
     --border: #38434f;
     --text: rgba(255,255,255,.92);
     --muted: rgba(255,255,255,.68);
@@ -58,6 +61,45 @@
     transition: background .2s ease, color .2s ease;
   }
 
+  .app-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 240px;
+    background: var(--sidebar);
+    color: #fff;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .sidebar-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px 18px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .sidebar-brand-text { font-size: .95rem; font-weight: 700; letter-spacing: -.01em; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px; border-radius: 10px;
+    color: rgba(255,255,255,.88);
+    text-decoration: none; font-size: .92rem; font-weight: 600;
+  }
+  .nav-item svg { width: 18px; height: 18px; flex: 0 0 18px; }
+  .nav-item:hover { background: var(--sidebar-hover); }
+  .nav-item.active {
+    background: #0a66c2; color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+
+  .content { grid-column: 2; min-width: 0; }
+
   .topbar {
     background: var(--sidebar);
     color: #fff;
@@ -80,6 +122,18 @@
   }
 
   main { max-width: 920px; margin: 28px auto; padding: 0 20px 60px; }
+
+  @media (max-width: 860px) {
+    .app-shell { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static; width: 100%;
+      flex-direction: row; align-items: center;
+      overflow-x: auto; padding: 14px;
+    }
+    .sidebar-brand { border-bottom: none; padding: 0 8px 0 0; margin-right: 8px; flex: 0 0 auto; }
+    .sidebar-nav { flex-direction: row; }
+    .content { grid-column: 1; }
+  }
 
   .breadcrumb { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
@@ -235,6 +289,33 @@
 </style>
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="sidebar-brand">
+      <span class="linkedin-mark">in</span>
+      <div class="sidebar-brand-text">Admin Center</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="javascript:void(0)">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <span>Overview</span>
+      </a>
+      <a class="nav-item active" href="javascript:void(0)">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Contracts</span>
+      </a>
+      <a class="nav-item" href="javascript:void(0)">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 15h3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Payment Methods</span>
+      </a>
+      <a class="nav-item" href="javascript:void(0)">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Transactions</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="content">
   <header class="topbar">
     <div class="brand">
       <span class="linkedin-mark">in</span>
@@ -300,6 +381,8 @@
   </main>
 
   <footer>Placeholder data for demonstration purposes only — not connected to live billing or CRM systems.</footer>
+  </div>
+</div>
 
   <script>
     // ---- Theme toggle ----
