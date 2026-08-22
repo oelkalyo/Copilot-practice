@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing Admin Center – Add Card to All Contracts</title>
+  <style>
+    * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f3f2ef;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --surface-hover: #f3f2f0;
+      --sidebar: #1d2226;
+      --sidebar-hover: rgba(255,255,255,.08);
+      --border: #e0e0e0;
+      --text: rgba(0,0,0,.9);
+      --muted: rgba(0,0,0,.6);
+      --muted-2: rgba(0,0,0,.45);
+      --accent: #0a66c2;
+      --accent-hover: #004182;
+      --success: #057642;
+      --warning: #b67100;
+      --danger: #cc1016;
+      --radius: 8px;
+      --pill: 24px;
+      --shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.02);
+    }
+
+    .dark {
+      --bg: #111b24;
+      --surface: #1d2226;
+      --surface-alt: #26313c;
+      --surface-hover: #2d3944;
+      --sidebar: #0f1419;
+      --sidebar-hover: rgba(255,255,255,.08);
+      --border: #38434f;
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted-2: rgba(255,255,255,.52);
+      --accent: #70b5f9;
+      --accent-hover: #9cc9f5;
+      --success: #6fd3a3;
+      --warning: #f8c77e;
+      --danger: #ff9b9b;
+      --shadow: 0 4px 24px rgba(0,0,0,.22);
+    }
+
+    html, body { min-height: 100%; }
+    body {
+      font-family: "LinkedIn Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--sidebar);
+      color: #fff;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .linkedin-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #0a66c2;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .sidebar-brand-text {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      color: rgba(255,255,255,.88);
+      text-decoration: none;
+      font-size: .92rem;
+      font-weight: 600;
+    }
+
+    .nav-item svg { width: 18px; height: 18px; flex: 0 0 18px; }
+    .nav-item:hover { background: var(--sidebar-hover); }
+    .nav-item.active {
+      background: #0a66c2;
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+
+    .content {
+      grid-column: 2;
+      min-width: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .search-shell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: min(360px, 100%);
+      padding: 0 14px;
+      height: 36px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+
+    .search-shell svg { width: 16px; height: 16px; color: var(--muted-2); }
+    .header-search {
+      border: none;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      color: var(--text);
+      font-size: .9rem;
+    }
+    .header-search::placeholder { color: var(--muted-2); }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .badge-env {
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #cfe2f7;
+      background: #eef6ff;
+      color: #0a66c2;
+    }
+
+    button.toggle-dark,
+    .avatar-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 999px;
+      height: 36px;
+      padding: 0 14px;
+      font-size: .83rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.toggle-dark:hover,
+    .avatar-btn:hover { background: var(--surface-hover); }
+
+    .avatar-btn {
+      width: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #0a66c2, #378fe9);
+      border-color: transparent;
+    }
+
+    main {
+      padding: 28px;
+      max-width: 1320px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: .96rem;
+      line-height: 1.5;
+      max-width: 760px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card,
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card { padding: 18px 20px; }
+    .metric-card .label {
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted-2);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .metric-card .value {
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .metric-card .value.green { color: var(--success); }
+    .metric-card .value.blue { color: var(--accent); }
+
+    .panel {
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-selector {
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .card-selector label {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    select,
+    input[type="search"] {
+      height: 40px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 0 14px;
+      font-size: .9rem;
+      outline: none;
+    }
+
+    select {
+      min-width: 320px;
+      cursor: pointer;
+    }
+
+    select:focus,
+    input[type="search"]:focus,
+    .header-search:focus {
+      box-shadow: 0 0 0 2px rgba(10,102,194,.18);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="search"] { width: 260px; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: var(--pill);
+      height: 40px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, opacity .15s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-ghost:hover { background: rgba(10,102,194,.08); }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+      background: var(--surface);
+    }
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      font-size: .73rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted-2);
+      font-weight: 700;
+      background: var(--surface);
+    }
+    tbody tr { transition: background .12s ease; }
+    tbody tr:hover { background: var(--surface-hover); }
+    tbody tr.selected { background: rgba(10,102,194,.08); }
+    .dark tbody tr.selected { background: rgba(112,181,249,.14); }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #0a66c2;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: .73rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .badge-active { background: #dff6ea; color: #057642; }
+    .badge-pending { background: #fff1d6; color: #9a6700; }
+    .badge-expired { background: #fde2e0; color: #b42318; }
+    .badge-linked { background: #e8f3ff; color: #0a66c2; }
+    .dark .badge-active { background: rgba(111,211,163,.18); color: #9ce7c2; }
+    .dark .badge-pending { background: rgba(248,199,126,.18); color: #ffd79f; }
+    .dark .badge-expired { background: rgba(255,155,155,.18); color: #ffc5c5; }
+    .dark .badge-linked { background: rgba(112,181,249,.18); color: #b9dcff; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 40;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      width: min(500px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.18);
+    }
+    .modal h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .modal p {
+      font-size: .92rem;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .modal-contracts {
+      list-style: none;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .modal-contracts li {
+      padding: 6px 0;
+      color: var(--text);
+      font-size: .88rem;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    #toast-container {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      min-width: 280px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font-size: .88rem;
+      color: var(--text);
+      animation: slideIn .22s ease;
+    }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      padding: 32px;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 1080px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        padding: 14px;
+      }
+      .sidebar-brand {
+        border-bottom: none;
+        padding: 0 8px 0 0;
+        margin-right: 8px;
+        flex: 0 0 auto;
+      }
+      .sidebar-nav { flex-direction: row; }
+      .content { grid-column: 1; }
+      header { padding: 0 18px; }
+      main { padding: 20px 18px 32px; }
+    }
+
+    @media (max-width: 640px) {
+      .metrics { grid-template-columns: 1fr; }
+      .page-head,
+      .panel-header,
+      .card-selector,
+      .toolbar,
+      .header-left,
+      .header-right {
+        align-items: stretch;
+      }
+      .search-shell,
+      .header-left,
+      .header-search,
+      input[type="search"],
+      select { width: 100%; min-width: 0; }
+      header {
+        height: auto;
+        padding: 14px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="sidebar-brand">
+      <span class="linkedin-mark">in</span>
+      <div class="sidebar-brand-text">Admin Center</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="javascript:void(0)" onclick="switchView('overview')">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <span>Overview</span>
+      </a>
+      <a class="nav-item active" href="javascript:void(0)" onclick="switchView('contracts')">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Contracts</span>
+      </a>
+      <a class="nav-item" href="javascript:void(0)" onclick="switchView('payment-methods')">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 15h3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Payment Methods</span>
+      </a>
+      <a class="nav-item" href="javascript:void(0)" onclick="switchView('transactions')">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Transactions</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="content">
+    <header>
+      <div class="header-left">
+        <div class="header-logo">
+          <span class="linkedin-mark">in</span>
+          <span>LinkedIn Admin Center</span>
+        </div>
+        <div class="search-shell" role="search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input class="header-search" type="search" placeholder="Search admin center" />
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="badge-env">SANDBOX</span>
+        <button class="toggle-dark" onclick="toggleDark()">🌙 Dark Mode</button>
+        <button class="avatar-btn" aria-label="Profile">OA</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Contracts</h1>
+          <p class="subtitle">Manage billing relationships across contracts, choose a payment card, and apply updates with a confirmation flow and audit trail.</p>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="label">Total Contracts</div>
+          <div class="value" id="m-total">8</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Active Contracts</div>
+          <div class="value green" id="m-active">5</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Linked Contracts</div>
+          <div class="value blue" id="m-linked">2</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Actions Today</div>
+          <div class="value" id="m-actions">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Select a payment card</span>
+        </div>
+        <div class="card-selector">
+          <label for="card-select">Payment Card</label>
+          <select id="card-select" onchange="onCardChange()">
+            <option value="">— Choose a card —</option>
+            <option value="visa-4242">Visa •••• 4242 (expires 08/26)</option>
+            <option value="mc-5555">Mastercard •••• 5555 (expires 12/25)</option>
+            <option value="amex-3714">Amex •••• 3714 (expires 03/27)</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddCardModal()" style="white-space:nowrap">＋ Add New Card</button>
+          <button class="btn btn-ghost" onclick="deleteSelectedCard()" style="white-space:nowrap;color:#dc2626;border-color:#dc2626" id="delete-card-btn" disabled>🗑 Delete Card</button>
+          <span id="card-hint" style="color:var(--muted);font-size:.85rem;"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Contracts</span>
+          <div class="toolbar">
+            <input type="search" id="search" placeholder="Search contracts" oninput="filterContracts()" />
+            <button class="btn btn-ghost" onclick="selectAll()">Select All</button>
+            <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+            <button class="btn btn-primary" id="associate-btn" disabled onclick="openModal()">Associate Card</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)" /></th>
+                <th>Contract ID</th>
+                <th>Customer</th>
+                <th>Plan</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Card Linked</th>
+              </tr>
+            </thead>
+            <tbody id="contract-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Audit history</span>
+        </div>
+        <div class="table-wrap">
+          <table id="audit-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Admin</th>
+                <th>Card</th>
+                <th>Contracts Updated</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <tr><td colspan="5" class="empty-state">No audit entries yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Confirm card association</h2>
+    <p>You are about to link <strong id="modal-card-name"></strong> to the following contracts:</p>
+    <ul class="modal-contracts" id="modal-contract-list"></ul>
+    <p style="margin-bottom:0">This action will be logged in the audit history. Continue?</p>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssociate()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ── Delete Card Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="delete-card-modal">
+  <div class="modal">
+    <h2>🗑 Delete Credit Card</h2>
+    <p>You are about to permanently remove this card from your saved payment methods:</p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:2rem" id="delete-card-icon">💳</div>
+      <div>
+        <div style="font-weight:700;font-size:.95rem" id="delete-card-label">—</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:3px" id="delete-card-sub">Saved payment method</div>
+      </div>
+    </div>
+    <p style="margin-bottom:0;font-size:.85rem;font-weight:600;padding:10px 14px;border-radius:8px" id="delete-card-warning">⚠️ This action cannot be undone.</p>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn btn-ghost" onclick="closeDeleteCardModal()">Cancel</button>
+      <button class="btn btn-primary" id="delete-card-confirm-btn" style="background:#dc2626" onclick="confirmDeleteCard()">Delete Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add New Card Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" id="add-card-modal">
+  <div class="modal">
+    <h2>➕ Add New Credit Card</h2>
+    <p>Enter your card details below. The card will be saved and available for selection.</p>
+    <div style="display:grid;gap:14px;margin-bottom:20px">
+      <div>
+        <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CARDHOLDER NAME</label>
+        <input id="new-card-name" type="text" placeholder="e.g. Jane Smith" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+      </div>
+      <div>
+        <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CARD NUMBER</label>
+        <input id="new-card-number" type="text" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="formatCardNumber(this)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem;letter-spacing:.1em" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">EXPIRY DATE</label>
+          <input id="new-card-expiry" type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CVV</label>
+          <input id="new-card-cvv" type="password" placeholder="•••" maxlength="4" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAddCardModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewCard()">Save Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Charge Transaction Modal ─────────────────────────────────── -->
+<div class="modal-overlay" id="charge-modal">
+  <div class="modal">
+    <h2>💳 Process Payment</h2>
+    <p id="charge-modal-amount" style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-bottom: 16px;">Amount: $0.00</p>
+    <p style="color: var(--muted); margin-bottom: 16px;">Select a payment method or add a new card to charge this transaction.</p>
+    
+    <div style="margin-bottom: 20px;">
+      <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:10px">SELECT PAYMENT METHOD</label>
+      <div id="charge-card-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
+        <!-- Card options will be populated here -->
+      </div>
+      <button class="btn btn-ghost" onclick="openChargeAddCardModal()" style="width: 100%; justify-content: center;">➕ Add New Card</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeChargeModal()">Cancel</button>
+      <button class="btn btn-primary" id="charge-btn" disabled onclick="processCharge()">Process Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Card during Charge Modal ─────────────────────────────────── -->
+<div class="modal-overlay" id="charge-add-card-modal">
+  <div class="modal">
+    <h2>➕ Add New Credit Card</h2>
+    <p>Enter your card details below. The card will be saved and used for this charge.</p>
+    <div style="display:grid;gap:14px;margin-bottom:20px">
+      <div>
+        <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CARDHOLDER NAME</label>
+        <input id="charge-card-name" type="text" placeholder="e.g. Jane Smith" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+      </div>
+      <div>
+        <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CARD NUMBER</label>
+        <input id="charge-card-number" type="text" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="formatCardNumber(this)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem;letter-spacing:.1em" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">EXPIRY DATE</label>
+          <input id="charge-card-expiry" type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CVV</label>
+          <input id="charge-card-cvv" type="password" placeholder="•••" maxlength="4" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 14px;font-size:.9rem" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeChargeAddCardModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveChargeCard()">Save & Charge</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Charge Result Modal ────────────────────────────────────── -->
+<div class="modal-overlay" id="charge-result-modal">
+  <div class="modal" style="text-align: center;">
+    <div id="charge-result-icon" style="font-size: 3rem; margin-bottom: 16px;">✓</div>
+    <h2 id="charge-result-title">Payment Successful</h2>
+    <p id="charge-result-message" style="color: var(--muted); margin-bottom: 20px; line-height: 1.6;">
+      Transaction TXN-XXXX-XXX has been paid.
+    </p>
+    <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--muted);">Amount</span>
+        <span id="charge-result-amount" style="font-weight: 600;">$0.00</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--muted);">Card Used</span>
+        <span id="charge-result-card" style="font-weight: 600;">••••</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--muted);">Timestamp</span>
+        <span id="charge-result-time" style="font-weight: 600;">Now</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeChargeResultModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Session State Management ────────────────────────────── */
+  class TransactionManager {
+    constructor() {
+      this.transactions = [
+        { id: 'TXN-20260822-001', contract: 'CNT-1001', period: 'Aug 1 - Aug 31, 2026', amount: '$1,000.00', status: 'paid', date: 'Aug 22, 2026', card: 'Visa •••• 4242' },
+        { id: 'TXN-20260821-002', contract: 'CNT-1004', period: 'Aug 1 - Aug 31, 2026', amount: '$1,500.00', status: 'paid', date: 'Aug 21, 2026', card: 'Mastercard •••• 5555' },
+        { id: 'TXN-20260820-003', contract: 'CNT-1007', period: 'Aug 1 - Aug 31, 2026', amount: '$350.00', status: 'paid', date: 'Aug 20, 2026', card: 'Visa •••• 4242' },
+        { id: 'TXN-20260819-004', contract: 'CNT-1005', period: 'Aug 1 - Aug 31, 2026', amount: '$300.00', status: 'unpaid', date: 'Aug 19, 2026', overdue: 3 },
+        { id: 'TXN-20260818-005', contract: 'CNT-1002', period: 'Aug 1 - Aug 31, 2026', amount: '$300.00', status: 'unpaid', date: 'Aug 18, 2026', overdue: 4 },
+      ];
+      this.loadState();
+    }
+
+    loadState() {
+      const saved = localStorage.getItem('transactions');
+      if (saved) {
+        this.transactions = JSON.parse(saved);
+      }
+    }
+
+    saveState() {
+      localStorage.setItem('transactions', JSON.stringify(this.transactions));
+    }
+
+    updateTransaction(txnId, cardUsed) {
+      const txn = this.transactions.find(t => t.id === txnId);
+      if (txn) {
+        txn.status = 'paid';
+        txn.card = cardUsed;
+        delete txn.overdue;
+        this.saveState();
+        return true;
+      }
+      return false;
+    }
+
+    getTransaction(txnId) {
+      return this.transactions.find(t => t.id === txnId);
+    }
+  }
+
+  const txnManager = new TransactionManager();
+
+  /* ── Initialize App State ────────────────────────────────── */
+  window.addEventListener('load', () => {
+    const savedView = localStorage.getItem('currentView') || 'contracts';
+    // Simulate clicking the nav item
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach((item, idx) => {
+      if ((idx === 1 && savedView === 'contracts') ||
+          (idx === 0 && savedView === 'overview') ||
+          (idx === 2 && savedView === 'payment-methods') ||
+          (idx === 3 && savedView === 'transactions')) {
+        item.click();
+      }
+    });
+  });
+
+  /* ── Data ─────────────────────────────────────────────────── */
+  const contracts = [
+    { id: 'CNT-1001', customer: 'Acme Corp',        plan: 'Enterprise',  value: '$12,000/yr', status: 'active',  linked: 'Visa •••• 4242' },
+    { id: 'CNT-1002', customer: 'BlueSky Ltd',       plan: 'Pro',         value: '$3,600/yr',  status: 'active',  linked: null },
+    { id: 'CNT-1003', customer: 'Orion Systems',     plan: 'Starter',     value: '$900/yr',    status: 'pending', linked: null },
+    { id: 'CNT-1004', customer: 'Nova Analytics',    plan: 'Enterprise',  value: '$18,000/yr', status: 'active',  linked: 'Mastercard •••• 5555' },
+    { id: 'CNT-1005', customer: 'Pixel Media',       plan: 'Pro',         value: '$3,600/yr',  status: 'active',  linked: null },
+    { id: 'CNT-1006', customer: 'Summit Finance',    plan: 'Enterprise',  value: '$24,000/yr', status: 'expired', linked: null },
+    { id: 'CNT-1007', customer: 'Crestview Health',  plan: 'Pro',         value: '$4,200/yr',  status: 'active',  linked: null },
+    { id: 'CNT-1008', customer: 'Zenith Logistics',  plan: 'Starter',     value: '$1,200/yr',  status: 'pending', linked: null },
+  ];
+
+  const cardLabels = {
+    'visa-4242': 'Visa •••• 4242',
+    'mc-5555':   'Mastercard •••• 5555',
+    'amex-3714': 'Amex •••• 3714',
+  };
+
+  let selectedIds = new Set();
+
+  /* ── Render Contracts ─────────────────────────────────────── */
+  function renderContracts(filter = '') {
+    const tbody = document.getElementById('contract-tbody');
+    const q = filter.toLowerCase();
+    const rows = contracts.filter(c =>
+      c.id.toLowerCase().includes(q) ||
+      c.customer.toLowerCase().includes(q) ||
+      c.plan.toLowerCase().includes(q)
+    );
+
+    tbody.innerHTML = rows.map(c => {
+      const checked = selectedIds.has(c.id) ? 'checked' : '';
+      const selClass = selectedIds.has(c.id) ? 'selected' : '';
+      const statusBadge = `<span class="badge badge-${c.status}">${c.status}</span>`;
+      const linkedBadge = c.linked
+        ? `<span class="badge badge-linked">✓ ${c.linked}</span>`
+        : `<span style="color:var(--muted);font-size:.8rem;">—</span>`;
+      return `
+        <tr class="${selClass}" id="row-${c.id}">
+          <td><input type="checkbox" ${checked} onchange="toggleRow('${c.id}', this)" /></td>
+          <td style="font-weight:600">${c.id}</td>
+          <td>${c.customer}</td>
+          <td>${c.plan}</td>
+          <td>${c.value}</td>
+          <td>${statusBadge}</td>
+          <td>${linkedBadge}</td>
+        </tr>`;
+    }).join('');
+
+    updateAssociateBtn();
+  }
+
+  function filterContracts() {
+    renderContracts(document.getElementById('search').value);
+  }
+
+  /* ── Selection ────────────────────────────────────────────── */
+  function toggleRow(id, chk) {
+    chk.checked ? selectedIds.add(id) : selectedIds.delete(id);
+    const row = document.getElementById('row-' + id);
+    row.classList.toggle('selected', chk.checked);
+    updateAssociateBtn();
+  }
+
+  function toggleAll(chk) {
+    document.querySelectorAll('#contract-tbody input[type=checkbox]').forEach(c => {
+      const id = c.closest('tr').id.replace('row-', '');
+      c.checked = chk.checked;
+      chk.checked ? selectedIds.add(id) : selectedIds.delete(id);
+      c.closest('tr').classList.toggle('selected', chk.checked);
+    });
+    updateAssociateBtn();
+  }
+
+  function selectAll() {
+    contracts.forEach(c => selectedIds.add(c.id));
+    document.getElementById('chk-all').checked = true;
+    renderContracts(document.getElementById('search').value);
+  }
+
+  function clearAll() {
+    selectedIds.clear();
+    document.getElementById('chk-all').checked = false;
+    renderContracts(document.getElementById('search').value);
+  }
+
+  function updateAssociateBtn() {
+    const cardOk = !!document.getElementById('card-select').value;
+    document.getElementById('associate-btn').disabled = !(selectedIds.size > 0 && cardOk);
+  }
+
+  /* ── Card Change ──────────────────────────────────────────── */
+  function onCardChange() {
+    const val = document.getElementById('card-select').value;
+    document.getElementById('card-hint').textContent = val ? '✓ Card selected' : '';
+    document.getElementById('delete-card-btn').disabled = !val;
+    updateAssociateBtn();
+  }
+
+  function deleteSelectedCard() {
+    const select = document.getElementById('card-select');
+    const val = select.value;
+    if (!val) return;
+    const label = cardLabels[val];
+
+    // Check if card is linked to any active contracts
+    const linked = contracts.filter(c => c.linked === label && c.status === 'active');
+
+    const network = label.split(' ')[0];
+    const icon = network === 'Visa' ? '💳' : network === 'Mastercard' ? '🟠' : '🟦';
+    document.getElementById('delete-card-label').textContent = label;
+    document.getElementById('delete-card-sub').textContent = `${network} · Saved payment method`;
+    document.getElementById('delete-card-icon').textContent = icon;
+
+    const warningEl = document.getElementById('delete-card-warning');
+    const confirmBtn = document.getElementById('delete-card-confirm-btn');
+
+    if (linked.length > 0) {
+      warningEl.innerHTML = `⛔ <strong>This card cannot be deleted.</strong><br><br>It is currently linked to <strong>${linked.length} active contract${linked.length > 1 ? 's' : ''}</strong>:<ul style="margin:8px 0 0 16px">${linked.map(c => `<li>${c.id} — ${c.customer}</li>`).join('')}</ul><br>To delete this card, you must first go to the <strong>Contracts</strong> table above, select the affected contract${linked.length > 1 ? 's' : ''}, and associate ${linked.length > 1 ? 'them' : 'it'} with a different payment card.`;
+      warningEl.style.color = '#dc2626';
+      warningEl.style.background = '#fff1f2';
+      warningEl.style.border = '1px solid #fecdd3';
+      confirmBtn.disabled = true;
+    } else {
+      warningEl.innerHTML = '⚠️ This action cannot be undone.';
+      warningEl.style.color = '#dc2626';
+      warningEl.style.background = 'transparent';
+      warningEl.style.border = 'none';
+      confirmBtn.disabled = false;
+    }
+
+    document.getElementById('delete-card-modal').classList.add('open');
+  }
+
+  function closeDeleteCardModal() {
+    document.getElementById('delete-card-modal').classList.remove('open');
+  }
+
+  function confirmDeleteCard() {
+    const select = document.getElementById('card-select');
+    const val = select.value;
+    const label = cardLabels[val];
+    delete cardLabels[val];
+    select.querySelector(`option[value="${val}"]`).remove();
+    select.value = '';
+    onCardChange();
+    closeDeleteCardModal();
+    showToast(`🗑 ${label} removed.`, 'error');
+  }
+
+  /* ── Modal ────────────────────────────────────────────────── */
+  function openModal() {
+    const card = cardLabels[document.getElementById('card-select').value];
+    document.getElementById('modal-card-name').textContent = card;
+    const list = document.getElementById('modal-contract-list');
+    list.innerHTML = [...selectedIds].map(id => {
+      const c = contracts.find(x => x.id === id);
+      return `<li>• ${c.id} — ${c.customer}</li>`;
+    }).join('');
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  /* ── Confirm Associate ────────────────────────────────────── */
+  function confirmAssociate() {
+    const cardKey  = document.getElementById('card-select').value;
+    const cardName = cardLabels[cardKey];
+    const updated  = [...selectedIds];
+
+    updated.forEach(id => {
+      const c = contracts.find(x => x.id === id);
+      if (c) c.linked = cardName;
+    });
+
+    addAuditEntry(cardName, updated);
+
+    const linked = contracts.filter(c => c.linked).length;
+    document.getElementById('m-linked').textContent = linked;
+    document.getElementById('m-actions').textContent =
+      parseInt(document.getElementById('m-actions').textContent) + 1;
+
+    closeModal();
+    clearAll();
+    showToast(`✓ Card linked to ${updated.length} contract(s) successfully.`, 'success');
+  }
+
+  /* ── Audit ────────────────────────────────────────────────── */
+  function addAuditEntry(card, ids) {
+    const tbody = document.getElementById('audit-tbody');
+    if (tbody.querySelector('.empty-state')) tbody.innerHTML = '';
+    const now = new Date().toLocaleString();
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${now}</td>
+      <td>admin@nextwave.io</td>
+      <td>${card}</td>
+      <td>${ids.join(', ')}</td>
+      <td><span class="badge badge-active">Success</span></td>`;
+    tbody.insertBefore(row, tbody.firstChild);
+  }
+
+  /* ── Toast ────────────────────────────────────────────────── */
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  /* ── Dark Mode ────────────────────────────────────────────── */
+  function toggleDark() {
+    const dark = document.documentElement.classList.toggle('dark');
+    document.querySelector('.toggle-dark').textContent = dark ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+
+  /* ── Init ─────────────────────────────────────────────────── */
+  renderContracts();
+
+  /* ── Add New Card ─────────────────────────────────────────── */
+  function openAddCardModal() {
+    ['new-card-name','new-card-number','new-card-expiry','new-card-cvv'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('add-card-modal').classList.add('open');
+  }
+
+  function closeAddCardModal() {
+    document.getElementById('add-card-modal').classList.remove('open');
+  }
+
+  function formatCardNumber(input) {
+    let v = input.value.replace(/\D/g,'').slice(0,16);
+    input.value = v.match(/.{1,4}/g)?.join(' ') || v;
+  }
+
+  function formatExpiry(input) {
+    let v = input.value.replace(/\D/g,'').slice(0,4);
+    if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+    input.value = v;
+  }
+
+  function saveNewCard() {
+    const name   = document.getElementById('new-card-name').value.trim();
+    const number = document.getElementById('new-card-number').value.trim();
+    const expiry = document.getElementById('new-card-expiry').value.trim();
+    const cvv    = document.getElementById('new-card-cvv').value.trim();
+
+    if (!name || number.replace(/\s/g,'').length < 16 || expiry.length < 5 || cvv.length < 3) {
+      showToast('Please fill in all card fields correctly.', 'error');
+      return;
+    }
+
+    const last4   = number.replace(/\s/g,'').slice(-4);
+    const network = number.startsWith('4') ? 'Visa' : number.startsWith('5') ? 'Mastercard' : 'Amex';
+    const key     = `${network.toLowerCase()}-${last4}`;
+    const label   = `${network} •••• ${last4} (expires ${expiry})`;
+
+    cardLabels[key] = label;
+
+    const select = document.getElementById('card-select');
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = label;
+    select.appendChild(opt);
+    select.value = key;
+    onCardChange();
+
+    closeAddCardModal();
+    showToast(`✓ ${label} added successfully.`, 'success');
+  }
+
+  /* ── View Switching ───────────────────────────────────────── */
+  function switchView(view) {
+    // Save current view to localStorage
+    localStorage.setItem('currentView', view);
+
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    event.target.closest('.nav-item').classList.add('active');
+
+    // Update page content based on view
+    const mainContent = document.querySelector('main');
+    
+    switch(view) {
+      case 'overview':
+        mainContent.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>Overview</h1>
+              <p class="subtitle">Here's a summary of your billing and account status.</p>
+            </div>
+          </div>
+          
+          <div class="metrics">
+            <div class="metric-card">
+              <div class="label">Total Contracts</div>
+              <div class="value" id="m-total">8</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Active Contracts</div>
+              <div class="value green" id="m-active">5</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Total Revenue</div>
+              <div class="value blue" id="m-revenue">$67,500/yr</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Pending Invoices</div>
+              <div class="value" id="m-pending">3</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Account Summary</span>
+            </div>
+            <div style="padding: 20px 24px;">
+              <p style="color: var(--muted); line-height: 1.6; margin-bottom: 16px;">
+                Welcome to your billing admin center. Here you can manage your contracts, payment methods, and view transaction history.
+              </p>
+              <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div>
+                  <div class="field-label">Last Updated</div>
+                  <div class="field-value">Today at 2:45 PM</div>
+                </div>
+                <div>
+                  <div class="field-label">Account Status</div>
+                  <div class="field-value" style="color: var(--success);">✓ Active</div>
+                </div>
+                <div>
+                  <div class="field-label">Primary Contact</div>
+                  <div class="field-value">Admin User</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'contracts':
+        mainContent.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>Contracts</h1>
+              <p class="subtitle">Manage billing relationships across contracts and choose a payment card.</p>
+            </div>
+          </div>
+          
+          <div class="metrics">
+            <div class="metric-card">
+              <div class="label">Total Contracts</div>
+              <div class="value" id="m-total">8</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Active Contracts</div>
+              <div class="value green" id="m-active">5</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Linked Contracts</div>
+              <div class="value blue" id="m-linked">2</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Pending Actions</div>
+              <div class="value" id="m-actions">3</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">All Contracts</span>
+              <div class="toolbar">
+                <input type="search" id="search" placeholder="Search contracts" style="width: 260px;" />
+                <button class="btn btn-ghost" onclick="selectAll()">Select All</button>
+                <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)" /></th>
+                    <th>Contract ID</th>
+                    <th>Customer</th>
+                    <th>Plan</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                    <th>Card Linked</th>
+                  </tr>
+                </thead>
+                <tbody id="contract-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        renderContracts();
+        break;
+
+      case 'payment-methods':
+        mainContent.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>Payment Methods</h1>
+              <p class="subtitle">Add, edit, or delete your saved payment methods.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Saved Payment Methods</span>
+              <button class="btn btn-primary" onclick="openAddCardModal()">➕ Add New Card</button>
+            </div>
+            <div style="padding: 20px 24px;">
+              <div id="payment-methods-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt);">
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">💳 Visa •••• 4242</div>
+                    <div style="font-size: 0.85rem; color: var(--muted);">Expires: 08/26</div>
+                  </div>
+                  <button class="btn btn-ghost" style="color: #dc2626; border-color: #dc2626;">Delete</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt);">
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">💳 Mastercard •••• 5555</div>
+                    <div style="font-size: 0.85rem; color: var(--muted);">Expires: 12/25</div>
+                  </div>
+                  <button class="btn btn-ghost" style="color: #dc2626; border-color: #dc2626;">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'transactions':
+        mainContent.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>Transactions</h1>
+              <p class="subtitle">View your billing transaction history.</p>
+            </div>
+          </div>
+
+          <div id="transactions-list" style="display: flex; flex-direction: column; gap: 16px;">
+            ${txnManager.transactions.map(txn => `
+              <div class="panel" style="margin-bottom: 0; ${txn.status === 'unpaid' ? 'border-color: var(--warning);' : ''}">
+                <div class="panel-header" style="${txn.status === 'unpaid' ? 'background: var(--warning-bg);' : ''}">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 4px;">${txn.id}</div>
+                    <div style="color: var(--muted); font-size: 0.85rem;">${txn.date}</div>
+                  </div>
+                  <span class="badge ${txn.status === 'paid' ? 'badge-active' : 'badge-pending'}">
+                    ${txn.status === 'paid' ? '✓ Paid' : '⏳ Unpaid'}
+                  </span>
+                </div>
+                <div style="padding: 20px 24px;">
+                  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+                    <div>
+                      <div class="field-label">Contract Number</div>
+                      <div class="field-value">${txn.contract}</div>
+                    </div>
+                    <div>
+                      <div class="field-label">Billing Period</div>
+                      <div class="field-value">${txn.period}</div>
+                    </div>
+                    <div>
+                      <div class="field-label">Amount</div>
+                      <div class="field-value" style="color: ${txn.status === 'paid' ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">${txn.amount}</div>
+                    </div>
+                    <div>
+                      <div class="field-label">${txn.status === 'paid' ? 'Payment Method' : 'Days Overdue'}</div>
+                      <div class="field-value" style="${txn.status === 'unpaid' ? 'color: var(--danger);' : ''}">${txn.status === 'paid' ? txn.card : txn.overdue + ' days'}</div>
+                    </div>
+                  </div>
+                  ${txn.status === 'unpaid' ? `
+                    <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);">
+                      <button class="btn btn-primary" onclick="openChargeModal('${txn.id}', '${txn.contract}', '${txn.amount}')">💳 Charge Now</button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        break;
+    }
+  }
+
+  /* ── Charge Modal Functions ──────────────────────────────────────── */
+  let currentChargeTransaction = { id: '', contract: '', amount: '' };
+  let selectedChargeCard = null;
+
+  const storedCards = [
+    { id: 'visa-4242', label: 'Visa •••• 4242', expires: '08/26' },
+    { id: 'mc-5555', label: 'Mastercard •••• 5555', expires: '12/25' },
+    { id: 'amex-3714', label: 'Amex •••• 3714', expires: '03/27' }
+  ];
+
+  function openChargeModal(txnId, contractId, amount) {
+    currentChargeTransaction = { id: txnId, contract: contractId, amount: amount };
+    selectedChargeCard = null;
+
+    document.getElementById('charge-modal-amount').textContent = `Amount: ${amount}`;
+
+    // Populate card list
+    const cardList = document.getElementById('charge-card-list');
+    cardList.innerHTML = storedCards.map(card => `
+      <div onclick="selectChargeCard('${card.id}')" style="padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--radius); background: var(--surface-alt); cursor: pointer; transition: all .2s ease;" id="card-${card.id}">
+        <div style="font-weight: 600; font-size: 0.9rem;">💳 ${card.label}</div>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-top: 3px;">Expires: ${card.expires}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('charge-modal').classList.add('open');
+  }
+
+  function selectChargeCard(cardId) {
+    selectedChargeCard = cardId;
+    
+    // Update visual selection
+    document.querySelectorAll('#charge-card-list > div').forEach(card => {
+      card.style.borderColor = 'var(--border)';
+      card.style.background = 'var(--surface-alt)';
+    });
+    
+    const selectedCard = document.getElementById('card-' + cardId);
+    selectedCard.style.borderColor = 'var(--accent)';
+    selectedCard.style.background = 'rgba(10, 102, 194, 0.08)';
+
+    document.getElementById('charge-btn').disabled = false;
+  }
+
+  function openChargeAddCardModal() {
+    document.getElementById('charge-modal').classList.remove('open');
+    document.getElementById('charge-add-card-modal').classList.add('open');
+  }
+
+  function closeChargeAddCardModal() {
+    document.getElementById('charge-add-card-modal').classList.remove('open');
+    document.getElementById('charge-modal').classList.add('open');
+  }
+
+  function saveChargeCard() {
+    const name = document.getElementById('charge-card-name').value.trim();
+    const number = document.getElementById('charge-card-number').value.trim();
+    const expiry = document.getElementById('charge-card-expiry').value.trim();
+
+    if (!name || !number || !expiry) {
+      showToast('Please fill in all card details', 'error');
+      return;
+    }
+
+    const lastFour = number.slice(-4);
+    const newCardId = 'card-' + Date.now();
+    const newCard = {
+      id: newCardId,
+      label: `Card •••• ${lastFour}`,
+      expires: expiry
+    };
+
+    storedCards.push(newCard);
+    selectedChargeCard = newCardId;
+
+    // Clear form
+    document.getElementById('charge-card-name').value = '';
+    document.getElementById('charge-card-number').value = '';
+    document.getElementById('charge-card-expiry').value = '';
+    document.getElementById('charge-card-cvv').value = '';
+
+    closeChargeAddCardModal();
+    
+    // Reopen charge modal with new card selected
+    setTimeout(() => {
+      openChargeModal(currentChargeTransaction.id, currentChargeTransaction.contract, currentChargeTransaction.amount);
+      selectChargeCard(newCardId);
+    }, 300);
+
+    showToast('✓ Card added successfully', 'success');
+  }
+
+  function closeChargeModal() {
+    document.getElementById('charge-modal').classList.remove('open');
+    selectedChargeCard = null;
+  }
+
+  function processCharge() {
+    if (!selectedChargeCard) {
+      showToast('Please select a payment method', 'error');
+      return;
+    }
+
+    const card = storedCards.find(c => c.id === selectedChargeCard);
+    
+    closeChargeModal();
+
+    // Simulate charge processing
+    showToast(`Processing payment...`, 'success');
+    
+    setTimeout(() => {
+      // Simulate random success (90% success rate for demo)
+      const isSuccessful = Math.random() < 0.9;
+      
+      const resultIcon = document.getElementById('charge-result-icon');
+      const resultTitle = document.getElementById('charge-result-title');
+      const resultMessage = document.getElementById('charge-result-message');
+      const resultAmount = document.getElementById('charge-result-amount');
+      const resultCard = document.getElementById('charge-result-card');
+      const resultTime = document.getElementById('charge-result-time');
+
+      if (isSuccessful) {
+        // Update transaction in manager
+        txnManager.updateTransaction(currentChargeTransaction.id, card.label);
+
+        resultIcon.textContent = '✓';
+        resultIcon.style.color = 'var(--success)';
+        resultTitle.textContent = 'Payment Successful';
+        resultMessage.innerHTML = `Transaction <strong>${currentChargeTransaction.id}</strong> for contract <strong>${currentChargeTransaction.contract}</strong> has been marked as paid.`;
+        resultAmount.textContent = currentChargeTransaction.amount;
+        resultCard.textContent = card.label;
+        resultTime.textContent = new Date().toLocaleTimeString();
+      } else {
+        resultIcon.textContent = '✕';
+        resultIcon.style.color = 'var(--danger)';
+        resultTitle.textContent = 'Payment Failed';
+        resultMessage.innerHTML = `Failed to process payment for transaction <strong>${currentChargeTransaction.id}</strong>. Please try again or contact support.`;
+        resultAmount.textContent = currentChargeTransaction.amount;
+        resultCard.textContent = card.label;
+        resultTime.textContent = 'Error';
+      }
+
+      document.getElementById('charge-result-modal').classList.add('open');
+    }, 1500);
+  }
+
+  function closeChargeResultModal() {
+    document.getElementById('charge-result-modal').classList.remove('open');
+    // Refresh transactions view
+    switchView('transactions');
+  }
+
+</script>
+</body>
+</html>
