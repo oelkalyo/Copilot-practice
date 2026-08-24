@@ -453,7 +453,7 @@
 
   <main>
     <div class="breadcrumb">
-      <a href="#">Contracts</a> &nbsp;/&nbsp; <a href="#">Customer Account</a> &nbsp;/&nbsp; FLD3849201756-1002
+      <a href="index.html" data-panel="contracts">Contracts</a> &nbsp;/&nbsp; <a href="index.html" data-panel="customer">Customer Account</a> &nbsp;/&nbsp; FLD3849201756-1002
     </div>
 
     <section class="header-card">
@@ -567,15 +567,10 @@
 
     function togglePanel(key) {
       const targetId = panelMap[key];
+      if (!targetId) return;
       const isOpen = document.getElementById(targetId).classList.contains('open');
-      closeAllPanels();
-      if (!isOpen) {
-        document.getElementById(targetId).classList.add('open');
-        document.getElementById('panel-overlay').classList.add('open');
-        document.querySelectorAll('.sidenav-item').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-' + key).classList.add('active');
-        if (key === 'contracts') renderPanel();
-      }
+      if (isOpen) closeAllPanels();
+      else openPanel(key);
     }
 
     function closeAllPanels() {
@@ -583,6 +578,34 @@
       document.getElementById('panel-overlay').classList.remove('open');
       document.querySelectorAll('.sidenav-item').forEach(b => b.classList.remove('active'));
     }
+
+    function openPanel(key) {
+      if (!panelMap[key]) return;
+      closeAllPanels();
+      document.getElementById(panelMap[key]).classList.add('open');
+      document.getElementById('panel-overlay').classList.add('open');
+      document.getElementById('nav-' + key).classList.add('active');
+      if (key === 'contracts') renderPanel();
+    }
+
+    /* Breadcrumb links open their panel in place; they keep a real href so they
+       still work with keyboard, middle-click and JavaScript disabled. */
+    document.querySelectorAll('[data-panel]').forEach(link => {
+      link.addEventListener('click', e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        openPanel(link.dataset.panel);
+      });
+    });
+
+    /* Deep links such as swap-contracts.html#customer open that panel on load. */
+    function openPanelFromHash() {
+      const key = window.location.hash.replace('#', '');
+      if (panelMap[key]) openPanel(key);
+    }
+    window.addEventListener('hashchange', openPanelFromHash);
+    // Deferred: renderPanel() reads contract data declared later in this script.
+    window.addEventListener('DOMContentLoaded', openPanelFromHash);
 
     /* ── Contract Panel Data ──────────────────────────────────── */
     const allContracts = [

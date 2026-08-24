@@ -62,15 +62,35 @@
 </head>
 <body>
 <nav class="sidenav">
-  <button class="sidenav-item" title="Customer Info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Customer</span></button>
-  <button class="sidenav-item active" onclick="togglePanel()" title="Contracts"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Contracts</span></button>
+  <button class="sidenav-item" id="nav-customer" onclick="togglePanel('customer')" title="Customer Info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Customer</span></button>
+  <button class="sidenav-item active" id="nav-contracts" onclick="togglePanel('contracts')" title="Contracts"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Contracts</span></button>
   <button class="sidenav-item" title="Credit Card"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span>Credit Card</span></button>
   <button class="sidenav-item" title="Activity Log"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Activity</span></button>
 </nav>
+<div class="contract-panel" id="customer-panel">
+  <div class="cp-header">
+    <div><div class="cp-title">Customer Info</div><div class="cp-sub">Account details</div></div>
+    <button class="cp-close" onclick="togglePanel('customer')">✕</button>
+  </div>
+  <div style="padding:20px 18px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800">A</div>
+      <div><div style="font-weight:700;font-size:1rem">Acme Corporation</div><div style="font-size:.8rem;color:var(--muted)">Enterprise Account</div></div>
+    </div>
+    <div><div class="field-label">Account ID</div><div class="field-value">urn:li:customer:6896490839917363200</div></div>
+    <div><div class="field-label">Industry</div><div class="field-value">Technology &amp; Software</div></div>
+    <div><div class="field-label">Company Size</div><div class="field-value">5,001–10,000 employees</div></div>
+    <div><div class="field-label">Headquarters</div><div class="field-value">San Francisco, CA, USA</div></div>
+    <div><div class="field-label">Account Manager</div><div class="field-value">Sarah Okonkwo</div></div>
+    <div><div class="field-label">Primary Contact</div><div class="field-value">billing@acmecorp.com</div></div>
+    <div><div class="field-label">Customer Since</div><div class="field-value">January 2023</div></div>
+    <div><div class="field-label">Total Contract Value</div><div class="field-value" style="color:var(--success);font-weight:700">$148,000 (lifetime)</div></div>
+  </div>
+</div>
 <div class="contract-panel" id="contract-panel">
   <div class="cp-header">
     <div><div class="cp-title">Contracts</div><div class="cp-sub">Acme Corporation</div></div>
-    <button class="cp-close" onclick="togglePanel()">✕</button>
+    <button class="cp-close" onclick="togglePanel('contracts')">✕</button>
   </div>
   <div class="cp-search-wrap"><input class="cp-search" type="search" placeholder="Search contracts…" oninput="filterPanel(this.value)"/></div>
   <div class="cp-filters">
@@ -82,13 +102,13 @@
   </div>
   <div class="cp-list" id="cp-list"></div>
 </div>
-<div class="panel-overlay" id="panel-overlay" onclick="togglePanel()"></div>
+<div class="panel-overlay" id="panel-overlay" onclick="closeAllPanels()"></div>
 <header class="topbar">
   <div class="brand"><span class="linkedin-mark">in</span> CSP Contract Viewer</div>
   <button class="theme-toggle" id="theme-toggle">🌙 Dark</button>
 </header>
 <main>
-  <div class="breadcrumb"><a href="swap-contracts.html">Contracts</a> &nbsp;/&nbsp; <a href="#">Customer Account</a> &nbsp;/&nbsp; FLD7710293845-4001</div>
+  <div class="breadcrumb"><a href="index.html" data-panel="contracts">Contracts</a> &nbsp;/&nbsp; <a href="index.html" data-panel="customer">Customer Account</a> &nbsp;/&nbsp; FLD7710293845-4001</div>
   <section class="header-card">
     <div class="header-row">
       <div><h1>Contract FLD7710293845-4001</h1><div class="contract-id">Master Agreement: FLD7710293845</div></div>
@@ -156,11 +176,15 @@
       </div>`).join('');
   }
 
-  function togglePanel() {
-    panelOpen = !panelOpen;
-    document.getElementById('contract-panel').classList.toggle('open', panelOpen);
-    document.getElementById('panel-overlay').classList.toggle('open', panelOpen);
-    if (panelOpen) renderPanel();
+  function togglePanel(key) {
+    const id = panelMap[key];
+    if (!id) return;
+    if (document.getElementById(id).classList.contains('open')) {
+      closeAllPanels();
+      panelOpen = false;
+    } else {
+      openPanel(key);
+    }
   }
 
   function filterPanel(q) { renderPanel(q, activeFilter); }
@@ -171,6 +195,48 @@
     el.classList.add('active');
     renderPanel(document.querySelector('.cp-search').value, f);
   }
+
+  /* ── Panel routing (Contracts / Customer Account) ─────────────── */
+  const panelMap = { contracts: 'contract-panel', customer: 'customer-panel' };
+
+  function closeAllPanels() {
+    Object.values(panelMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    });
+    document.getElementById('panel-overlay').classList.remove('open');
+    document.querySelectorAll('.sidenav-item').forEach(b => b.classList.remove('active'));
+  }
+
+  function openPanel(key) {
+    const id = panelMap[key];
+    if (!id) return;
+    closeAllPanels();
+    document.getElementById(id).classList.add('open');
+    document.getElementById('panel-overlay').classList.add('open');
+    const navBtn = document.getElementById('nav-' + key);
+    if (navBtn) navBtn.classList.add('active');
+    if (key === 'contracts') renderPanel();
+    panelOpen = true;
+  }
+
+  /* Breadcrumb links open their panel in place but keep a real href so they
+     still work with keyboard, middle-click and JavaScript disabled. */
+  document.querySelectorAll('[data-panel]').forEach(link => {
+    link.addEventListener('click', e => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      openPanel(link.dataset.panel);
+    });
+  });
+
+  /* Deep links such as this-page.html#customer open that panel on load. */
+  function openPanelFromHash() {
+    const key = window.location.hash.replace('#', '');
+    if (panelMap[key]) openPanel(key);
+  }
+  window.addEventListener('hashchange', openPanelFromHash);
+  window.addEventListener('DOMContentLoaded', openPanelFromHash);
 </script>
 </body>
 </html>
