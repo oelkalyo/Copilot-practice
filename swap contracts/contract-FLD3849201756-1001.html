@@ -108,7 +108,7 @@
   <button class="theme-toggle" id="theme-toggle">🌙 Dark</button>
 </header>
 <main>
-  <div class="breadcrumb"><a href="index.html" data-panel="contracts">Contracts</a> &nbsp;/&nbsp; <a href="index.html" data-panel="customer">Customer Account</a> &nbsp;/&nbsp; FLD3849201756-1001</div>
+  <div class="breadcrumb"><a href="swap-admin-center.html" data-panel="contracts">Contracts</a> &nbsp;/&nbsp; <a href="swap-admin-center.html" data-panel="customer">Customer Account</a> &nbsp;/&nbsp; FLD3849201756-1001</div>
   <section class="header-card">
     <div class="header-row">
       <div><h1>Contract FLD3849201756-1001</h1><div class="contract-id">Master Agreement: FLD3849201756</div></div>
@@ -129,7 +129,7 @@
     <h2>Contract Timeline</h2>
     <p class="subtitle">Lifecycle of this contract chain.</p>
     <div class="swap-item"><div class="swap-meta"><span class="swap-label">This Contract</span><span class="field-value">FLD3849201756-1001 (current page)</span></div></div>
-<div class="swap-item"><div class="swap-meta"><span class="swap-label">Replacement Contract</span><a class="swap-contract-link" href="swap-admin-center.html">FLD3849201756-1002</a><span class="swap-reason">Currently follows this contract</span></div></div>
+<div class="swap-item"><div class="swap-meta"><span class="swap-label">Replacement Contract</span><a class="swap-contract-link" href="swap-csp.html">FLD3849201756-1002</a><span class="swap-reason">Currently follows this contract</span></div></div>
   </section>
 </main>
 <footer>Placeholder data for demonstration purposes only — not connected to live contract systems.</footer>
@@ -141,9 +141,9 @@
   });
 
   const allContracts = [
-  { id:"FLD3849201756-1001", start:"Jan 1, 2023", end:"Dec 31, 2024", amount:"$36,000/yr", status:"terminated", href:"contract-FLD3849201756-1001.html", current:true, related:[{id:"FLD3849201756-1002",label:"Replaced by",href:"swap-admin-center.html"}] },
-  { id:"FLD3849201756-1002", start:"Jan 1, 2025", end:"Jun 30, 2026", amount:"$48,000/yr", status:"terminated", href:"swap-admin-center.html", current:false, related:[{id:"FLD3849201756-1001",label:"Replaced",href:"contract-FLD3849201756-1001.html"},{id:"FLD3849201756-1003",label:"Replaced by",href:"swap-contracts-1003.html"}] },
-  { id:"FLD3849201756-1003", start:"Jul 1, 2026", end:"Jun 30, 2027", amount:"$64,000/yr", status:"replacement", href:"swap-contracts-1003.html", current:false, related:[{id:"FLD3849201756-1002",label:"Replaced",href:"swap-admin-center.html"}] },
+  { id:"FLD3849201756-1001", start:"Jan 1, 2023", end:"Dec 31, 2024", amount:"$36,000/yr", status:"terminated", href:"contract-FLD3849201756-1001.html", current:true, related:[{id:"FLD3849201756-1002",label:"Replaced by",href:"swap-csp.html"}] },
+  { id:"FLD3849201756-1002", start:"Jan 1, 2025", end:"Jun 30, 2026", amount:"$48,000/yr", status:"terminated", href:"swap-csp.html", current:false, related:[{id:"FLD3849201756-1001",label:"Replaced",href:"contract-FLD3849201756-1001.html"},{id:"FLD3849201756-1003",label:"Replaced by",href:"swap-contracts-1003.html"}] },
+  { id:"FLD3849201756-1003", start:"Jul 1, 2026", end:"Jun 30, 2027", amount:"$64,000/yr", status:"replacement", href:"swap-contracts-1003.html", current:false, related:[{id:"FLD3849201756-1002",label:"Replaced",href:"swap-csp.html"}] },
   { id:"FLD9271048302-2001", start:"Mar 1, 2025", end:"Feb 28, 2026", amount:"$12,000/yr", status:"signed", href:"contract-FLD9271048302-2001.html", current:false, related:[{id:"FLD9271048302-2002",label:"Renewed by",href:"contract-FLD9271048302-2002.html"}] },
   { id:"FLD9271048302-2002", start:"Mar 1, 2026", end:"Feb 28, 2027", amount:"$15,600/yr", status:"active", href:"contract-FLD9271048302-2002.html", current:false, related:[{id:"FLD9271048302-2001",label:"Renewed from",href:"contract-FLD9271048302-2001.html"}] },
   { id:"FLD5530184927-3001", start:"Jun 1, 2026", end:"May 31, 2027", amount:"$8,400/yr", status:"active", href:"contract-FLD5530184927-3001.html", current:false, related:[] },

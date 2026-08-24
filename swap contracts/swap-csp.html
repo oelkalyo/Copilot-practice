@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CSP Contract – FLD3849201756-1002</title>
+<style>
+  * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f3f2ef;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --surface-hover: #f3f2f0;
+    --sidebar: #1d2226;
+    --sidebar-hover: rgba(255,255,255,.08);
+    --border: #e0e0e0;
+    --text: rgba(0,0,0,.9);
+    --muted: rgba(0,0,0,.6);
+    --muted-2: rgba(0,0,0,.45);
+    --accent: #0a66c2;
+    --accent-hover: #004182;
+    --success: #057642;
+    --success-bg: #e9f8f0;
+    --warning: #b67100;
+    --warning-bg: #fdf3e3;
+    --danger: #cc1016;
+    --danger-bg: #fdecec;
+    --radius: 8px;
+    --pill: 24px;
+    --shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.02);
+  }
+
+  .dark {
+    --bg: #111b24;
+    --surface: #1d2226;
+    --surface-alt: #26313c;
+    --surface-hover: #2d3944;
+    --sidebar: #0f1419;
+    --sidebar-hover: rgba(255,255,255,.08);
+    --border: #38434f;
+    --text: rgba(255,255,255,.92);
+    --muted: rgba(255,255,255,.68);
+    --muted-2: rgba(255,255,255,.52);
+    --accent: #70b5f9;
+    --accent-hover: #9cc9f5;
+    --success: #6fd3a3;
+    --success-bg: #16332a;
+    --warning: #f8c77e;
+    --warning-bg: #3a2c14;
+    --danger: #ff9b9b;
+    --danger-bg: #3a1c1e;
+    --shadow: 0 4px 24px rgba(0,0,0,.22);
+  }
+
+  html, body { min-height: 100%; }
+  body {
+    font-family: "LinkedIn Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background .2s ease, color .2s ease;
+  }
+
+  .topbar {
+    background: var(--sidebar);
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+
+  .linkedin-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .theme-toggle {
+    background: var(--sidebar-hover);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 28px auto;
+    padding: 0 20px 60px;
+  }
+
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .header-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .contract-id { color: var(--muted); font-size: 0.95rem; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--pill);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .status-terminated { background: var(--danger-bg); color: var(--danger); }
+  .status-active { background: var(--success-bg); color: var(--success); }
+  .status-replacement { background: var(--warning-bg); color: var(--warning); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .field-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted-2);
+    margin-bottom: 4px;
+  }
+  .field-value { font-size: 0.95rem; font-weight: 500; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+  .card .subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  /* Swap section: swapped-out / swapped-in contract links */
+  .swap-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-alt);
+    margin-bottom: 10px;
+  }
+  .swap-item:last-child { margin-bottom: 0; }
+
+  .swap-meta { display: flex; flex-direction: column; gap: 2px; }
+  .swap-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted-2);
+  }
+  .swap-contract-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .swap-contract-link:hover { text-decoration: underline; color: var(--accent-hover); }
+
+  .swap-reason { font-size: 0.8rem; color: var(--muted); }
+
+  .arrow-icon {
+    font-size: 1.2rem;
+    color: var(--muted-2);
+  }
+
+  .empty-note {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted-2);
+    font-size: 0.8rem;
+    padding: 20px 0 40px;
+  }
+
+  /* ── Side Nav ─────────────────────────────────────────────── */
+  .sidenav {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 72px; background: var(--sidebar);
+    display: flex; flex-direction: column;
+    align-items: center; padding: 72px 0 20px;
+    gap: 4px; z-index: 90;
+  }
+  .sidenav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 8px; width: 60px; border-radius: 8px;
+    background: transparent; border: none; color: rgba(255,255,255,.6);
+    font-size: .65rem; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s; text-align: center;
+  }
+  .sidenav-item:hover { background: var(--sidebar-hover); color: #fff; }
+  .sidenav-item.active { background: var(--accent); color: #fff; }
+
+  /* ── Contract List Panel ──────────────────────────────────── */
+  .contract-panel {
+    position: fixed; top: 0; left: 72px; bottom: 0;
+    width: 360px; background: var(--surface);
+    border-right: 1px solid var(--border);
+    box-shadow: 4px 0 20px rgba(0,0,0,.12);
+    z-index: 80; display: flex; flex-direction: column;
+    transform: translateX(-110%);
+    transition: transform .25s ease;
+  }
+  .contract-panel.open { transform: translateX(0); }
+
+  .panel-overlay {
+    display: none; position: fixed; inset: 0; z-index: 75;
+    background: rgba(0,0,0,.25);
+  }
+  .panel-overlay.open { display: block; }
+
+  .cp-header {
+    padding: 20px 20px 12px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .cp-title { font-weight: 700; font-size: 1.05rem; }
+  .cp-sub { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+  .cp-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1rem; padding: 2px 6px; border-radius: 4px;
+  }
+  .cp-close:hover { background: var(--surface-hover); color: var(--text); }
+
+  .cp-search-wrap { padding: 12px 16px 8px; }
+  .cp-search {
+    width: 100%; background: var(--surface-alt); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: .87rem;
+  }
+  .cp-search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .cp-filters {
+    display: flex; gap: 6px; padding: 0 16px 10px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .cp-filter-btn {
+    background: var(--surface-alt); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 999px; padding: 4px 12px;
+    font-size: .75rem; font-weight: 600; cursor: pointer;
+  }
+  .cp-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cp-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .cp-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+
+  .cp-row {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background .1s; text-decoration: none; color: inherit;
+  }
+  .cp-row:hover { background: var(--surface-hover); }
+  .cp-row.current { background: #eff6ff; border-left: 3px solid var(--accent); }
+  .dark .cp-row.current { background: #1e3a5f; }
+
+  .cp-row-top { display: flex; align-items: center; justify-content: space-between; }
+  .cp-contract-id { font-weight: 700; font-size: .88rem; color: var(--accent); }
+  .cp-row-meta { display: flex; gap: 16px; font-size: .78rem; color: var(--muted); margin-top: 3px; }
+  .cp-amount { font-weight:600; font-size:.85rem; color:var(--text); }
+
+  .cp-related { padding: 6px 18px 10px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; flex-direction: column; gap: 4px; }
+  .cp-related-link { font-size: .78rem; color: var(--accent); text-decoration: none; display: block; }
+  .cp-related-link:hover { text-decoration: underline; }
+  .cp-related-label { color: var(--muted-2); font-weight: 600; }
+
+  .pill-active      { background: #e9f8f0; color: #057642; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+  .pill-signed      { background: #dbeafe; color: #1d4ed8; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+  .pill-terminated  { background: #fdecec; color: #cc1016; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+  .pill-replacement { background: #fdf3e3; color: #b67100; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+  .dark .pill-active      { background: #16332a; color: #6fd3a3; }
+  .dark .pill-signed      { background: #1e3a5f; color: #93c5fd; }
+  .dark .pill-terminated  { background: #3a1c1e; color: #ff9b9b; }
+  .dark .pill-replacement { background: #3a2c14; color: #f8c77e; }
+
+  body { padding-left: 72px; }
+</style>
+</head>
+<body>
+
+<!-- ── Side Nav ───────────────────────────────────────────────── -->
+<nav class="sidenav" id="sidenav">
+  <button class="sidenav-item" onclick="togglePanel('customer')" id="nav-customer" title="Customer Info">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Customer</span>
+  </button>
+  <button class="sidenav-item active" onclick="togglePanel('contracts')" id="nav-contracts" title="Contracts">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span>Contracts</span>
+  </button>
+  <button class="sidenav-item" onclick="togglePanel('creditcard')" id="nav-creditcard" title="Credit Card">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    <span>Credit Card</span>
+  </button>
+  <button class="sidenav-item" onclick="togglePanel('activitylog')" id="nav-activitylog" title="Activity Log">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Activity</span>
+  </button>
+</nav>
+
+<!-- ── Contract List Panel ────────────────────────────────────── -->
+<div class="contract-panel" id="contract-panel">
+  <div class="cp-header">
+    <div>
+      <div class="cp-title">Contracts</div>
+      <div class="cp-sub">Acme Corporation</div>
+    </div>
+    <button class="cp-close" onclick="togglePanel('contracts')">✕</button>
+  </div>
+  <div class="cp-search-wrap">
+    <input class="cp-search" type="search" placeholder="Search contracts…" oninput="filterPanel(this.value)" />
+  </div>
+  <div class="cp-filters">
+    <button class="cp-filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="cp-filter-btn" onclick="setFilter('active', this)">Active</button>
+    <button class="cp-filter-btn" onclick="setFilter('signed', this)">Signed</button>
+    <button class="cp-filter-btn" onclick="setFilter('terminated', this)">Terminated</button>
+    <button class="cp-filter-btn" onclick="setFilter('replacement', this)">Replacement</button>
+  </div>
+  <div class="cp-list" id="cp-list"></div>
+</div>
+
+<!-- ── Customer Info Panel ────────────────────────────────────── -->
+<div class="contract-panel" id="customer-panel">
+  <div class="cp-header">
+    <div><div class="cp-title">Customer Info</div><div class="cp-sub">Account details</div></div>
+    <button class="cp-close" onclick="togglePanel('customer')">✕</button>
+  </div>
+  <div style="padding:20px 18px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800">A</div>
+      <div><div style="font-weight:700;font-size:1rem">Acme Corporation</div><div style="font-size:.8rem;color:var(--muted)">Enterprise Account</div></div>
+    </div>
+    <div><div class="field-label">Account ID</div><div class="field-value">urn:li:customer:6896490839917363200</div></div>
+    <div><div class="field-label">Industry</div><div class="field-value">Technology & Software</div></div>
+    <div><div class="field-label">Company Size</div><div class="field-value">5,001–10,000 employees</div></div>
+    <div><div class="field-label">Headquarters</div><div class="field-value">San Francisco, CA, USA</div></div>
+    <div><div class="field-label">Account Manager</div><div class="field-value">Sarah Okonkwo</div></div>
+    <div><div class="field-label">Primary Contact</div><div class="field-value">billing@acmecorp.com</div></div>
+    <div><div class="field-label">Customer Since</div><div class="field-value">January 2023</div></div>
+    <div><div class="field-label">Total Contract Value</div><div class="field-value" style="color:var(--success);font-weight:700">$148,000 (lifetime)</div></div>
+  </div>
+</div>
+
+<!-- ── Credit Card Panel ──────────────────────────────────────── -->
+<div class="contract-panel" id="creditcard-panel">
+  <div class="cp-header">
+    <div><div class="cp-title">Credit Cards</div><div class="cp-sub">Saved payment methods</div></div>
+    <button class="cp-close" onclick="togglePanel('creditcard')">✕</button>
+  </div>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+    <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700">💳 Visa •••• 4242</span>
+        <span class="pill-active">Primary</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:6px">Expires 08/26 &nbsp;·&nbsp; Acme Corp Billing</div>
+    </div>
+    <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700">🟠 Mastercard •••• 5555</span>
+        <span class="pill-signed">Backup</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:6px">Expires 12/25 &nbsp;·&nbsp; Acme Corp Finance</div>
+    </div>
+    <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700">🟦 Amex •••• 3714</span>
+        <span class="pill-terminated">Expired</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:6px">Expires 03/24 &nbsp;·&nbsp; Acme Corp Executive</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Activity Log Panel ─────────────────────────────────────── -->
+<div class="contract-panel" id="activitylog-panel">
+  <div class="cp-header">
+    <div><div class="cp-title">Activity Log</div><div class="cp-sub">Recent account actions</div></div>
+    <button class="cp-close" onclick="togglePanel('activitylog')">✕</button>
+  </div>
+  <div style="padding:8px 0">
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Aug 20, 2026 · 09:14</div><div style="font-size:.87rem;font-weight:600">Card linked to contract</div><div style="font-size:.8rem;color:var(--muted)">Visa •••• 4242 → FLD3849201756-1003</div></div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Jul 1, 2026 · 00:01</div><div style="font-size:.87rem;font-weight:600">Replacement contract activated</div><div style="font-size:.8rem;color:var(--muted)">FLD3849201756-1003 created from swap</div></div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Jun 28, 2026 · 14:30</div><div style="font-size:.87rem;font-weight:600">Contract swap initiated</div><div style="font-size:.8rem;color:var(--muted)">FLD3849201756-1002 → FLD3849201756-1003</div></div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Jan 1, 2025 · 00:01</div><div style="font-size:.87rem;font-weight:600">Contract FLD3849201756-1002 signed</div><div style="font-size:.8rem;color:var(--muted)">Annual renewal — Sales Navigator</div></div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--border)"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Dec 31, 2024 · 23:59</div><div style="font-size:.87rem;font-weight:600">Contract FLD3849201756-1001 terminated</div><div style="font-size:.8rem;color:var(--muted)">End of term — replaced by -1002</div></div>
+    <div style="padding:12px 18px"><div style="font-size:.75rem;color:var(--muted-2);margin-bottom:3px">Jan 1, 2023 · 00:01</div><div style="font-size:.87rem;font-weight:600">Account created</div><div style="font-size:.8rem;color:var(--muted)">Acme Corporation onboarded</div></div>
+  </div>
+</div>
+
+<div class="panel-overlay" id="panel-overlay" onclick="closeAllPanels()"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="linkedin-mark">in</span>
+    CSP Contract Viewer
+  </div>
+  <button class="theme-toggle" id="theme-toggle">🌙 Dark</button>
+</header>
+
+  <main>
+    <div class="breadcrumb">
+      <a href="swap-admin-center.html" data-panel="contracts">Contracts</a> &nbsp;/&nbsp; <a href="swap-admin-center.html" data-panel="customer">Customer Account</a> &nbsp;/&nbsp; FLD3849201756-1002
+    </div>
+
+    <section class="header-card">
+      <div class="header-row">
+        <div>
+          <h1>Contract FLD3849201756-1002</h1>
+          <div class="contract-id">Master Agreement: FLD3849201756</div>
+        </div>
+        <span class="status-pill status-terminated">● Terminated</span>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="field-label">Account Name</div>
+          <div class="field-value">Acme Corporation</div>
+        </div>
+        <div>
+          <div class="field-label">Product Line</div>
+          <div class="field-value">LinkedIn Sales Navigator</div>
+        </div>
+        <div>
+          <div class="field-label">Start Date</div>
+          <div class="field-value">Jan 1, 2025</div>
+        </div>
+        <div>
+          <div class="field-label">Termination Date</div>
+          <div class="field-value">Jun 30, 2026</div>
+        </div>
+        <div>
+          <div class="field-label">Contract Value</div>
+          <div class="field-value">$48,000 / yr</div>
+        </div>
+        <div>
+          <div class="field-label">Billing Frequency</div>
+          <div class="field-value">Annual</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Swap Contracts section: shows swapped-out (replacement) and swapped-in (terminated) links -->
+    <section class="card" id="swap-section">
+      <h2>Swapped Contracts</h2>
+      <p class="subtitle">
+        This contract was terminated and swapped out. See the replacement contract below.
+      </p>
+
+      <div id="swap-list">
+        <div class="swap-item">
+          <div class="swap-meta">
+            <span class="swap-label">Swapped Out → Replaced By</span>
+            <a class="swap-contract-link" href="#" data-contract="FLD3849201756-1003">FLD3849201756-1003</a>
+            <span class="swap-reason">Reason: Plan upgrade — Sales Navigator Advanced Plus</span>
+          </div>
+          <span class="arrow-icon">→</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Contract Timeline</h2>
+      <p class="subtitle">Full lifecycle of this contract chain.</p>
+      <div class="swap-item">
+        <div class="swap-meta">
+          <span class="swap-label">Original Contract</span>
+          <a class="swap-contract-link" href="#" data-contract="FLD3849201756-1001">FLD3849201756-1001</a>
+          <span class="swap-reason">Terminated → replaced by FLD3849201756-1002</span>
+        </div>
+      </div>
+      <div class="swap-item">
+        <div class="swap-meta">
+          <span class="swap-label">This Contract</span>
+          <span class="field-value">FLD3849201756-1002 (current page)</span>
+          <span class="swap-reason">Terminated → replaced by FLD3849201756-1003</span>
+        </div>
+      </div>
+      <div class="swap-item">
+        <div class="swap-meta">
+          <span class="swap-label">Replacement Contract</span>
+          <a class="swap-contract-link" href="#" data-contract="FLD3849201756-1003">FLD3849201756-1003</a>
+          <span class="swap-reason">Currently active</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Placeholder data for demonstration purposes only — not connected to live contract systems.</footer>
+
+  <script>
+    // Dark/light theme toggle
+    const toggleBtn = document.getElementById('theme-toggle');
+    toggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      toggleBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+    });
+
+    const BASE_URL = '';
+    document.querySelectorAll('[data-contract]').forEach(link => {
+      const id = link.dataset.contract;
+      if (id === 'FLD3849201756-1001') link.href = 'contract-FLD3849201756-1001.html';
+      else if (id === 'FLD3849201756-1003') link.href = 'swap-contracts-1003.html';
+      else link.href = '#';
+    });
+
+    /* ── Panel toggle ─────────────────────────────────────────── */
+    const panelMap = {
+      contracts:   'contract-panel',
+      customer:    'customer-panel',
+      creditcard:  'creditcard-panel',
+      activitylog: 'activitylog-panel',
+    };
+
+    function togglePanel(key) {
+      const targetId = panelMap[key];
+      if (!targetId) return;
+      const isOpen = document.getElementById(targetId).classList.contains('open');
+      if (isOpen) closeAllPanels();
+      else openPanel(key);
+    }
+
+    function closeAllPanels() {
+      Object.values(panelMap).forEach(id => document.getElementById(id).classList.remove('open'));
+      document.getElementById('panel-overlay').classList.remove('open');
+      document.querySelectorAll('.sidenav-item').forEach(b => b.classList.remove('active'));
+    }
+
+    function openPanel(key) {
+      if (!panelMap[key]) return;
+      closeAllPanels();
+      document.getElementById(panelMap[key]).classList.add('open');
+      document.getElementById('panel-overlay').classList.add('open');
+      document.getElementById('nav-' + key).classList.add('active');
+      if (key === 'contracts') renderPanel();
+    }
+
+    /* Breadcrumb links open their panel in place; they keep a real href so they
+       still work with keyboard, middle-click and JavaScript disabled. */
+    document.querySelectorAll('[data-panel]').forEach(link => {
+      link.addEventListener('click', e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        openPanel(link.dataset.panel);
+      });
+    });
+
+    /* Deep links such as swap-csp.html#customer open that panel on load. */
+    function openPanelFromHash() {
+      const key = window.location.hash.replace('#', '');
+      if (panelMap[key]) openPanel(key);
+    }
+    window.addEventListener('hashchange', openPanelFromHash);
+    // Deferred: renderPanel() reads contract data declared later in this script.
+    window.addEventListener('DOMContentLoaded', openPanelFromHash);
+
+    /* ── Contract Panel Data ──────────────────────────────────── */
+    const allContracts = [
+      { id: 'FLD3849201756-1001', start: 'Jan 1, 2023',  end: 'Dec 31, 2024', amount: '$36,000/yr', status: 'terminated',  href: 'contract-FLD3849201756-1001.html', related: [{ id:'FLD3849201756-1002', label:'Replaced by', href:'swap-csp.html' }] },
+      { id: 'FLD3849201756-1002', start: 'Jan 1, 2025',  end: 'Jun 30, 2026', amount: '$48,000/yr', status: 'terminated',  href: 'swap-csp.html', current: true, related: [{ id:'FLD3849201756-1001', label:'Replaced', href:'contract-FLD3849201756-1001.html' }, { id:'FLD3849201756-1003', label:'Replaced by', href:'swap-contracts-1003.html' }] },
+      { id: 'FLD3849201756-1003', start: 'Jul 1, 2026',  end: 'Jun 30, 2027', amount: '$64,000/yr', status: 'replacement', href: 'swap-contracts-1003.html', related: [{ id:'FLD3849201756-1002', label:'Replaced', href:'swap-csp.html' }] },
+      { id: 'FLD9271048302-2001', start: 'Mar 1, 2025',  end: 'Feb 28, 2026', amount: '$12,000/yr', status: 'signed',      href: 'contract-FLD9271048302-2001.html', related: [{ id:'FLD9271048302-2002', label:'Renewed by', href:'contract-FLD9271048302-2002.html' }] },
+      { id: 'FLD9271048302-2002', start: 'Mar 1, 2026',  end: 'Feb 28, 2027', amount: '$15,600/yr', status: 'active',      href: 'contract-FLD9271048302-2002.html', related: [{ id:'FLD9271048302-2001', label:'Renewed from', href:'contract-FLD9271048302-2001.html' }] },
+      { id: 'FLD5530184927-3001', start: 'Jun 1, 2026',  end: 'May 31, 2027', amount: '$8,400/yr',  status: 'active',      href: 'contract-FLD5530184927-3001.html', related: [] },
+      { id: 'FLD7710293845-4001', start: 'Jan 1, 2024',  end: 'Dec 31, 2024', amount: '$24,000/yr', status: 'terminated',  href: 'contract-FLD7710293845-4001.html', related: [{ id:'FLD7710293845-4002', label:'Replaced by', href:'contract-FLD7710293845-4002.html' }] },
+      { id: 'FLD7710293845-4002', start: 'Jan 1, 2025',  end: 'Dec 31, 2025', amount: '$28,800/yr', status: 'signed',      href: 'contract-FLD7710293845-4002.html', related: [{ id:'FLD7710293845-4001', label:'Replaced', href:'contract-FLD7710293845-4001.html' }] },
+    ];
+
+    let activeFilter = 'all';
+
+    function pillHtml(status) {
+      return `<span class="pill-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+    }
+
+    function relatedHtml(related) {
+      if (!related || !related.length) return '';
+      return `<div class="cp-related">${related.map(r =>
+        `<a class="cp-related-link" href="${r.href}">↳ <span class="cp-related-label">${r.label}:</span> ${r.id}</a>`
+      ).join('')}</div>`;
+    }
+
+    function renderPanel(query = '', filter = 'all') {
+      const list = document.getElementById('cp-list');
+      const filtered = allContracts.filter(c => {
+        const matchQ = c.id.toLowerCase().includes(query.toLowerCase());
+        const matchF = filter === 'all' || c.status === filter;
+        return matchQ && matchF;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.87rem">No contracts found.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(c => `
+        <div class="cp-row-wrap">
+          <a class="cp-row${c.current ? ' current' : ''}" href="${c.href}">
+            <div class="cp-row-top">
+              <span class="cp-contract-id">${c.id}</span>
+              ${pillHtml(c.status)}
+            </div>
+            <div class="cp-row-meta">
+              <span>📅 ${c.start} → ${c.end}</span>
+            </div>
+            <div class="cp-amount">${c.amount}</div>
+          </a>
+          ${filter !== 'all' ? relatedHtml(c.related) : ''}
+        </div>`).join('');
+    }
+
+    function filterPanel(q) { renderPanel(q, activeFilter); }
+
+    function setFilter(f, btn) {
+      activeFilter = f;
+      document.querySelectorAll('.cp-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderPanel(document.querySelector('.cp-search').value, f);
+    }
+  </script>
+</body>
+</html>
