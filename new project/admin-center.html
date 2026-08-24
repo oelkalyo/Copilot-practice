@@ -61,6 +61,23 @@
       grid-template-columns: 240px 1fr;
     }
 
+    /* Make every link and interactive control feel clickable */
+    a { cursor: pointer; }
+    main a { color: var(--accent); text-decoration: underline; }
+    main a:hover { color: var(--accent-hover); }
+    main a.metric-card { text-decoration: none; }
+    main a.metric-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,.10);
+    }
+    a:focus-visible,
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     .sidebar {
       position: fixed;
       top: 0;
@@ -576,24 +593,24 @@
 <body>
 <div class="app-shell">
   <aside class="sidebar" aria-label="Admin navigation">
-    <div class="sidebar-brand">
+    <a class="sidebar-brand" href="#overview" style="text-decoration:none;color:inherit">
       <span class="linkedin-mark">in</span>
       <div class="sidebar-brand-text">Admin Center</div>
-    </div>
+    </a>
     <nav class="sidebar-nav">
-      <a class="nav-item" href="javascript:void(0)" onclick="switchView('overview')">
+      <a class="nav-item" data-view="overview" href="#overview">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         <span>Overview</span>
       </a>
-      <a class="nav-item active" href="javascript:void(0)" onclick="switchView('contracts')">
+      <a class="nav-item" data-view="contracts" href="#contracts">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>Contracts</span>
       </a>
-      <a class="nav-item" href="javascript:void(0)" onclick="switchView('payment-methods')">
+      <a class="nav-item" data-view="payment-methods" href="#payment-methods">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 15h3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>Payment Methods</span>
       </a>
-      <a class="nav-item" href="javascript:void(0)" onclick="switchView('transactions')">
+      <a class="nav-item" data-view="transactions" href="#transactions">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Transactions</span>
       </a>
@@ -603,10 +620,10 @@
   <div class="content">
     <header>
       <div class="header-left">
-        <div class="header-logo">
+        <a class="header-logo" href="#overview" style="text-decoration:none;color:inherit">
           <span class="linkedin-mark">in</span>
           <span>LinkedIn Admin Center</span>
-        </div>
+        </a>
         <div class="search-shell" role="search">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           <input class="header-search" type="search" placeholder="Search admin center" />
@@ -911,18 +928,24 @@
   const txnManager = new TransactionManager();
 
   /* ── Initialize App State ────────────────────────────────── */
-  window.addEventListener('load', () => {
-    const savedView = localStorage.getItem('currentView') || 'contracts';
-    // Simulate clicking the nav item
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach((item, idx) => {
-      if ((idx === 1 && savedView === 'contracts') ||
-          (idx === 0 && savedView === 'overview') ||
-          (idx === 2 && savedView === 'payment-methods') ||
-          (idx === 3 && savedView === 'transactions')) {
-        item.click();
-      }
-    });
+  function resolveInitialView() {
+    const fromHash = window.location.hash.replace('#', '');
+    if (fromHash) return fromHash;
+    return localStorage.getItem('currentView') || 'overview';
+  }
+
+  function routeFromHash() {
+    switchView(resolveInitialView());
+  }
+
+  window.addEventListener('hashchange', routeFromHash);
+  window.addEventListener('DOMContentLoaded', () => {
+    const view = resolveInitialView();
+    // Keep the address bar in sync so the link is shareable/bookmarkable
+    if (window.location.hash.replace('#', '') !== view) {
+      history.replaceState(null, '', '#' + view);
+    }
+    switchView(view);
   });
 
   /* ── Data ─────────────────────────────────────────────────── */
@@ -948,6 +971,7 @@
   /* ── Render Contracts ─────────────────────────────────────── */
   function renderContracts(filter = '') {
     const tbody = document.getElementById('contract-tbody');
+    if (!tbody) return;
     const q = filter.toLowerCase();
     const rows = contracts.filter(c =>
       c.id.toLowerCase().includes(q) ||
@@ -978,7 +1002,8 @@
   }
 
   function filterContracts() {
-    renderContracts(document.getElementById('search').value);
+    const search = document.getElementById('search');
+    renderContracts(search ? search.value : '');
   }
 
   /* ── Selection ────────────────────────────────────────────── */
@@ -1001,26 +1026,35 @@
 
   function selectAll() {
     contracts.forEach(c => selectedIds.add(c.id));
-    document.getElementById('chk-all').checked = true;
-    renderContracts(document.getElementById('search').value);
+    const chkAll = document.getElementById('chk-all');
+    if (chkAll) chkAll.checked = true;
+    filterContracts();
   }
 
   function clearAll() {
     selectedIds.clear();
-    document.getElementById('chk-all').checked = false;
-    renderContracts(document.getElementById('search').value);
+    const chkAll = document.getElementById('chk-all');
+    if (chkAll) chkAll.checked = false;
+    filterContracts();
   }
 
   function updateAssociateBtn() {
-    const cardOk = !!document.getElementById('card-select').value;
-    document.getElementById('associate-btn').disabled = !(selectedIds.size > 0 && cardOk);
+    const select = document.getElementById('card-select');
+    const btn = document.getElementById('associate-btn');
+    if (!btn) return;
+    const cardOk = !!(select && select.value);
+    btn.disabled = !(selectedIds.size > 0 && cardOk);
   }
 
   /* ── Card Change ──────────────────────────────────────────── */
   function onCardChange() {
-    const val = document.getElementById('card-select').value;
-    document.getElementById('card-hint').textContent = val ? '✓ Card selected' : '';
-    document.getElementById('delete-card-btn').disabled = !val;
+    const select = document.getElementById('card-select');
+    if (!select) return;
+    const val = select.value;
+    const hint = document.getElementById('card-hint');
+    if (hint) hint.textContent = val ? '✓ Card selected' : '';
+    const deleteBtn = document.getElementById('delete-card-btn');
+    if (deleteBtn) deleteBtn.disabled = !val;
     updateAssociateBtn();
   }
 
@@ -1104,10 +1138,10 @@
 
     addAuditEntry(cardName, updated);
 
-    const linked = contracts.filter(c => c.linked).length;
-    document.getElementById('m-linked').textContent = linked;
-    document.getElementById('m-actions').textContent =
-      parseInt(document.getElementById('m-actions').textContent) + 1;
+    const linkedEl = document.getElementById('m-linked');
+    if (linkedEl) linkedEl.textContent = contracts.filter(c => c.linked).length;
+    const actionsEl = document.getElementById('m-actions');
+    if (actionsEl) actionsEl.textContent = parseInt(actionsEl.textContent || '0', 10) + 1;
 
     closeModal();
     clearAll();
@@ -1117,6 +1151,7 @@
   /* ── Audit ────────────────────────────────────────────────── */
   function addAuditEntry(card, ids) {
     const tbody = document.getElementById('audit-tbody');
+    if (!tbody) return;
     if (tbody.querySelector('.empty-state')) tbody.innerHTML = '';
     const now = new Date().toLocaleString();
     const row = document.createElement('tr');
@@ -1143,9 +1178,6 @@
     const dark = document.documentElement.classList.toggle('dark');
     document.querySelector('.toggle-dark').textContent = dark ? '☀️ Light Mode' : '🌙 Dark Mode';
   }
-
-  /* ── Init ─────────────────────────────────────────────────── */
-  renderContracts();
 
   /* ── Add New Card ─────────────────────────────────────────── */
   function openAddCardModal() {
@@ -1187,27 +1219,37 @@
     cardLabels[key] = label;
 
     const select = document.getElementById('card-select');
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = label;
-    select.appendChild(opt);
-    select.value = key;
-    onCardChange();
+    if (select) {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = label;
+      select.appendChild(opt);
+      select.value = key;
+      onCardChange();
+    }
 
     closeAddCardModal();
     showToast(`✓ ${label} added successfully.`, 'success');
   }
 
   /* ── View Switching ───────────────────────────────────────── */
+  const KNOWN_VIEWS = ['overview', 'contracts', 'payment-methods', 'transactions'];
+
   function switchView(view) {
-    // Save current view to localStorage
+    if (!KNOWN_VIEWS.includes(view)) view = 'overview';
+
+    // Save current view so a refresh returns to the same page
     localStorage.setItem('currentView', view);
 
-    // Update active nav item
+    // Highlight the matching sidebar link
     document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('active');
+      item.classList.toggle('active', item.dataset.view === view);
+      if (item.dataset.view === view) {
+        item.setAttribute('aria-current', 'page');
+      } else {
+        item.removeAttribute('aria-current');
+      }
     });
-    event.target.closest('.nav-item').classList.add('active');
 
     // Update page content based on view
     const mainContent = document.querySelector('main');
@@ -1223,22 +1265,22 @@
           </div>
           
           <div class="metrics">
-            <div class="metric-card">
+            <a class="metric-card" href="#contracts" style="text-decoration:none;color:inherit;display:block">
               <div class="label">Total Contracts</div>
-              <div class="value" id="m-total">8</div>
-            </div>
-            <div class="metric-card">
+              <div class="value" id="m-total">${contracts.length}</div>
+            </a>
+            <a class="metric-card" href="#contracts" style="text-decoration:none;color:inherit;display:block">
               <div class="label">Active Contracts</div>
-              <div class="value green" id="m-active">5</div>
-            </div>
-            <div class="metric-card">
-              <div class="label">Total Revenue</div>
-              <div class="value blue" id="m-revenue">$67,500/yr</div>
-            </div>
-            <div class="metric-card">
-              <div class="label">Pending Invoices</div>
-              <div class="value" id="m-pending">3</div>
-            </div>
+              <div class="value green" id="m-active">${contracts.filter(c => c.status === 'active').length}</div>
+            </a>
+            <a class="metric-card" href="#payment-methods" style="text-decoration:none;color:inherit;display:block">
+              <div class="label">Saved Cards</div>
+              <div class="value blue">${Object.keys(cardLabels).length}</div>
+            </a>
+            <a class="metric-card" href="#transactions" style="text-decoration:none;color:inherit;display:block">
+              <div class="label">Unpaid Invoices</div>
+              <div class="value" id="m-pending">${txnManager.transactions.filter(t => t.status === 'unpaid').length}</div>
+            </a>
           </div>
 
           <div class="panel">
@@ -1247,12 +1289,15 @@
             </div>
             <div style="padding: 20px 24px;">
               <p style="color: var(--muted); line-height: 1.6; margin-bottom: 16px;">
-                Welcome to your billing admin center. Here you can manage your contracts, payment methods, and view transaction history.
+                Welcome to your billing admin center. Here you can manage your
+                <a href="#contracts">contracts</a>,
+                <a href="#payment-methods">payment methods</a>, and view
+                <a href="#transactions">transaction history</a>.
               </p>
               <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                 <div>
                   <div class="field-label">Last Updated</div>
-                  <div class="field-value">Today at 2:45 PM</div>
+                  <div class="field-value">${new Date().toLocaleString()}</div>
                 </div>
                 <div>
                   <div class="field-label">Account Status</div>
@@ -1260,7 +1305,7 @@
                 </div>
                 <div>
                   <div class="field-label">Primary Contact</div>
-                  <div class="field-value">Admin User</div>
+                  <div class="field-value"><a href="mailto:admin@nextwave.io">admin@nextwave.io</a></div>
                 </div>
               </div>
             </div>
@@ -1298,11 +1343,28 @@
 
           <div class="panel">
             <div class="panel-header">
+              <span class="panel-title">Select a payment card</span>
+            </div>
+            <div class="card-selector">
+              <label for="card-select">Payment Card</label>
+              <select id="card-select" onchange="onCardChange()">
+                <option value="">— Choose a card —</option>
+                ${Object.entries(cardLabels).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
+              </select>
+              <button class="btn btn-primary" onclick="openAddCardModal()" style="white-space:nowrap">＋ Add New Card</button>
+              <button class="btn btn-ghost" onclick="deleteSelectedCard()" style="white-space:nowrap;color:#dc2626;border-color:#dc2626" id="delete-card-btn" disabled>🗑 Delete Card</button>
+              <span id="card-hint" style="color:var(--muted);font-size:.85rem;"></span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
               <span class="panel-title">All Contracts</span>
               <div class="toolbar">
-                <input type="search" id="search" placeholder="Search contracts" style="width: 260px;" />
+                <input type="search" id="search" placeholder="Search contracts" oninput="filterContracts()" style="width: 260px;" />
                 <button class="btn btn-ghost" onclick="selectAll()">Select All</button>
                 <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+                <button class="btn btn-primary" id="associate-btn" disabled onclick="openModal()">Associate Card</button>
               </div>
             </div>
             <div class="table-wrap">
@@ -1319,6 +1381,28 @@
                   </tr>
                 </thead>
                 <tbody id="contract-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Audit history</span>
+            </div>
+            <div class="table-wrap">
+              <table id="audit-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Admin</th>
+                    <th>Card</th>
+                    <th>Contracts Updated</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-tbody">
+                  <tr><td colspan="5" class="empty-state">No audit entries yet.</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -1342,20 +1426,15 @@
             </div>
             <div style="padding: 20px 24px;">
               <div id="payment-methods-list" style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt);">
-                  <div>
-                    <div style="font-weight: 600; margin-bottom: 4px;">💳 Visa •••• 4242</div>
-                    <div style="font-size: 0.85rem; color: var(--muted);">Expires: 08/26</div>
+                ${Object.entries(cardLabels).map(([key, label]) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt);">
+                    <div>
+                      <div style="font-weight: 600; margin-bottom: 4px;">💳 ${label}</div>
+                      <div style="font-size: 0.85rem; color: var(--muted);">Saved payment method</div>
+                    </div>
+                    <button class="btn btn-ghost" style="color: #dc2626; border-color: #dc2626;" onclick="removeSavedCard('${key}')">Delete</button>
                   </div>
-                  <button class="btn btn-ghost" style="color: #dc2626; border-color: #dc2626;">Delete</button>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt);">
-                  <div>
-                    <div style="font-weight: 600; margin-bottom: 4px;">💳 Mastercard •••• 5555</div>
-                    <div style="font-size: 0.85rem; color: var(--muted);">Expires: 12/25</div>
-                  </div>
-                  <button class="btn btn-ghost" style="color: #dc2626; border-color: #dc2626;">Delete</button>
-                </div>
+                `).join('')}
               </div>
             </div>
           </div>
@@ -1566,6 +1645,16 @@
     document.getElementById('charge-result-modal').classList.remove('open');
     // Refresh transactions view
     switchView('transactions');
+  }
+
+  /* ── Remove a saved card from the Payment Methods view ──────── */
+  function removeSavedCard(key) {
+    const label = cardLabels[key];
+    if (!label) return;
+    delete cardLabels[key];
+    contracts.forEach(c => { if (c.linked === label) c.linked = null; });
+    switchView('payment-methods');
+    showToast(`🗑 ${label} removed.`, 'error');
   }
 
 </script>
