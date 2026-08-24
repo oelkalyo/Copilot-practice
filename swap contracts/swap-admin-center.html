@@ -3,220 +3,775 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Swap Contracts – Index</title>
+<title>Admin Center – Contracts &amp; orders</title>
 <style>
-  * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg: #f3f2ef;
     --surface: #ffffff;
-    --surface-alt: #f8fafc;
     --border: #e0e0e0;
+    --border-soft: #ebebeb;
     --text: rgba(0,0,0,.9);
     --muted: rgba(0,0,0,.6);
     --muted-2: rgba(0,0,0,.45);
     --accent: #0a66c2;
     --accent-hover: #004182;
-    --sidebar: #1d2226;
     --radius: 8px;
-    --shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.02);
+    --shadow: 0 1px 3px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.03);
+    --shadow-lg: 0 8px 28px rgba(0,0,0,.18);
   }
 
-  .dark {
-    --bg: #111b24;
-    --surface: #1d2226;
-    --surface-alt: #26313c;
-    --border: #38434f;
-    --text: rgba(255,255,255,.92);
-    --muted: rgba(255,255,255,.68);
-    --muted-2: rgba(255,255,255,.52);
-    --accent: #70b5f9;
-    --accent-hover: #9cc9f5;
-    --shadow: 0 4px 24px rgba(0,0,0,.22);
-  }
-
-  html, body { min-height: 100%; }
+  html, body { height: 100%; }
   body {
-    font-family: "LinkedIn Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: var(--bg);
+    font-family: "LinkedIn Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--surface);
     color: var(--text);
-    transition: background .2s ease, color .2s ease;
+    font-size: 14px;
+    line-height: 1.45;
   }
+  a { color: var(--accent); }
 
-  .topbar {
-    background: var(--sidebar);
-    color: #fff;
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  /* ── Support agent strip ─────────────────────────────── */
+  .agent-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 10px 24px;
+    background: #fff; border-bottom: 1px solid var(--border-soft);
+    font-size: .82rem; color: var(--muted);
   }
-
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-
-  .linkedin-mark {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: var(--accent);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-  }
-
-  .theme-toggle {
-    background: rgba(255,255,255,.08);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,.15);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
+  .agent-bar .pill-btn {
+    border: 1px solid rgba(0,0,0,.6); background: #fff; color: var(--text);
+    border-radius: 999px; padding: 5px 16px; font: inherit; font-weight: 600;
     cursor: pointer;
   }
+  .agent-bar .pill-btn:hover { background: rgba(0,0,0,.05); }
 
-  main {
-    max-width: 720px;
-    margin: 40px auto;
-    padding: 0 20px 60px;
+  /* ── LinkedIn header ─────────────────────────────────── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; border-bottom: 1px solid var(--border-soft); background: #fff;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .brand .mark {
+    background: var(--accent); color: #fff; font-weight: 800; font-size: 1.15rem;
+    padding: 1px 6px 3px; border-radius: 4px; letter-spacing: -.5px;
+  }
+  .brand .word { font-size: 1.35rem; font-weight: 400; letter-spacing: -.4px; }
+  .brand .word b { font-weight: 400; }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .icon-circle {
+    width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--muted-2); color: #fff; font-size: .78rem; font-weight: 700;
+    border: none; cursor: pointer;
+  }
+  .icon-circle.help { background: #4a4a4a; }
+
+  /* ── Layout ──────────────────────────────────────────── */
+  .shell { display: flex; min-height: calc(100vh - 96px); }
+
+  .sidebar {
+    width: 250px; flex: 0 0 250px; background: #fff;
+    border-right: 1px solid var(--border-soft); padding: 16px 0;
+  }
+  .account-block {
+    display: flex; gap: 10px; padding: 0 16px 16px; align-items: flex-start;
+    border-bottom: 1px solid var(--border-soft); margin-bottom: 10px;
+  }
+  .account-block .stripe { width: 3px; align-self: stretch; background: #e07b39; border-radius: 2px; }
+  .account-name { font-weight: 600; font-size: .88rem; }
+  .account-sub { font-size: .78rem; color: var(--muted); word-break: break-all; }
+
+  .side-nav a {
+    display: block; padding: 9px 16px; color: var(--text); text-decoration: none;
+    font-size: .9rem; border-left: 3px solid transparent;
+  }
+  .side-nav a:hover { background: rgba(0,0,0,.04); }
+  .side-nav a.active { font-weight: 600; border-left-color: rgba(0,0,0,.85); }
+
+  .content { flex: 1; min-width: 0; background: var(--bg); }
+
+  .page-head { background: #fff; padding: 18px 32px 0; border-bottom: 1px solid var(--border-soft); }
+  .breadcrumb { font-size: .82rem; color: var(--muted); margin-bottom: 8px; }
+  .breadcrumb a { text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .title-row h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -.3px; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--accent); color: var(--accent); background: #fff;
+    border-radius: 999px; padding: 6px 16px; font: inherit; font-weight: 600;
+    font-size: .85rem; cursor: pointer; text-decoration: none;
+  }
+  .btn-outline:hover { background: #eaf3fb; }
+  .btn-solid {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    border-radius: 999px; padding: 6px 16px; font: inherit; font-weight: 600;
+    font-size: .85rem; cursor: pointer;
+  }
+  .btn-solid:hover { background: var(--accent-hover); }
+
+  .meta-strip {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 14px 0 16px; font-size: .85rem; color: var(--muted);
+  }
+  .meta-strip .dot { color: var(--muted-2); }
+  .meta-item { display: inline-flex; align-items: center; gap: 6px; }
+
+  .cards { padding: 24px 32px 48px; display: flex; flex-direction: column; gap: 22px; }
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px 24px;
+  }
+  .card h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; }
+  .card .card-note { font-size: .84rem; color: var(--muted); margin-bottom: 14px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: .82rem; font-weight: 600; color: var(--text);
+    padding: 12px 10px; border-bottom: 1px solid var(--border-soft); white-space: nowrap;
+  }
+  tbody td { padding: 16px 10px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; font-size: .87rem; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+
+  .desc-id { font-weight: 400; }
+  .desc-sub { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+  .status-pill {
+    display: inline-block; padding: 3px 11px; border-radius: 4px;
+    font-size: .78rem; font-weight: 500;
+  }
+  .status-cancelled { background: #fbe4e4; color: #8a2c2c; }
+  .status-active    { background: #ddf5e5; color: #1c6b3a; }
+
+  .pay-method { display: inline-flex; align-items: center; gap: 6px; }
+
+  .neg-value { color: var(--text); }
+
+  .icon-btn {
+    background: none; border: none; cursor: pointer; color: var(--accent);
+    font-size: 1rem; padding: 4px; line-height: 1;
+  }
+  .icon-btn:hover { color: var(--accent-hover); }
+
+  /* Products-purchased hover popover */
+  .prod-trigger {
+    background: none; border: none; padding: 0; font: inherit; cursor: pointer;
+    color: var(--muted); text-decoration: underline; display: inline-flex; align-items: center; gap: 3px;
+  }
+  .prod-wrap { position: relative; display: inline-block; }
+  .prod-pop {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 40;
+    width: 320px; background: #fff; border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); padding: 16px 18px;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity .12s ease, transform .12s ease, visibility .12s;
+  }
+  .prod-wrap:hover .prod-pop,
+  .prod-wrap:focus-within .prod-pop,
+  .prod-pop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .prod-pop h4 { font-size: .95rem; font-weight: 600; margin-bottom: 12px; }
+  .prod-line { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+  .prod-line .pname { font-size: .84rem; }
+  .prod-line .pright { text-align: right; white-space: nowrap; }
+  .prod-line .pamt { font-size: .84rem; }
+  .prod-line .punits { font-size: .76rem; color: var(--muted); }
+  .prod-pop .tax-note { text-align: right; font-size: .76rem; color: var(--muted); }
+
+  .rep-link { font-size: .78rem; }
+
+  /* Definition grid (renewal / billing) */
+  .def-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px 24px; }
+  .def-label { font-size: .84rem; font-weight: 600; margin-bottom: 3px; }
+  .def-value { font-size: .87rem; color: var(--text); }
+  .no-mark { color: #b32d2d; font-weight: 700; }
+
+  footer { text-align: center; color: var(--muted-2); font-size: .78rem; padding: 8px 0 32px; }
+
+  /* ── Modal ───────────────────────────────────────────── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 90;
+    display: none; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow-lg);
+    width: 100%; max-width: 720px; overflow: hidden;
+  }
+  .modal-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+    padding: 20px 24px 14px; border-bottom: 1px solid var(--border-soft);
+  }
+  .modal-head h2 { font-size: 1.2rem; font-weight: 600; }
+  .modal-head p { font-size: .84rem; color: var(--muted); margin-top: 3px; }
+  .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); line-height: 1; }
+  .modal-body { padding: 20px 24px 24px; max-height: 68vh; overflow-y: auto; }
+  .modal-body h3 { font-size: .98rem; font-weight: 600; margin: 20px 0 8px; }
+  .modal-body h3:first-child { margin-top: 0; }
+  .modal-body p, .modal-body li { font-size: .87rem; color: var(--text); }
+  .modal-body ol, .modal-body ul { margin: 8px 0 0 20px; }
+  .modal-body li { margin-bottom: 8px; }
+
+  .step-list { list-style: none; margin: 0 !important; counter-reset: s; }
+  .step-list li { position: relative; padding-left: 34px; margin-bottom: 12px; }
+  .step-list li::before {
+    counter-increment: s; content: counter(s);
+    position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: .74rem; font-weight: 700;
+    display: grid; place-items: center;
   }
 
-  h1 { font-size: 1.4rem; margin-bottom: 6px; }
-  .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
-
-  .contract-list { display: flex; flex-direction: column; gap: 14px; }
-
-  .contract-card {
-    display: block;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: transform .15s ease, box-shadow .15s ease;
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 10px; }
+  .fig {
+    border: 1px solid var(--border-soft); border-radius: var(--radius);
+    padding: 12px 14px; background: #fafafa;
   }
-  .contract-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  .fig .fig-label { font-size: .76rem; color: var(--muted); margin-bottom: 3px; }
+  .fig .fig-value { font-size: 1.05rem; font-weight: 600; }
+  .fig .fig-value.neg { color: #8a2c2c; }
+  .fig .fig-value.pos { color: #1c6b3a; }
+
+  .applied-note {
+    margin-top: 12px; padding: 12px 14px; border-radius: var(--radius);
+    background: #eaf7ef; border: 1px solid #bfe5cd; font-size: .85rem; color: #1c6b3a;
   }
 
-  .contract-id {
-    font-weight: 700;
-    color: var(--accent);
-    font-size: 1.05rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .contract-desc { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .divider { height: 1px; background: var(--border-soft); margin: 22px 0; }
 
-  .group-title {
-    font-size: 0.95rem;
-    color: var(--muted);
-    margin: 28px 0 10px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+  label.f-label { display: block; font-size: .84rem; font-weight: 600; margin-bottom: 5px; }
+  .f-input, .f-select, .f-textarea {
+    width: 100%; border: 1px solid rgba(0,0,0,.35); border-radius: 4px;
+    padding: 9px 11px; font: inherit; font-size: .87rem; background: #fff; color: var(--text);
   }
-  .group-title:first-of-type { margin-top: 8px; }
+  .f-textarea { min-height: 96px; resize: vertical; }
+  .f-input:focus, .f-select:focus, .f-textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .f-row { margin-bottom: 14px; }
+  .f-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .f-two { grid-template-columns: 1fr; } }
+  .f-error { color: #8a2c2c; font-size: .8rem; margin-top: 5px; display: none; }
+  .f-error.show { display: block; }
 
-  .badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: .02em;
+  /* Ticket confirmation + progress tracker */
+  .ticket-box {
+    border: 1px solid #bfe5cd; background: #eaf7ef; border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 18px;
   }
-  .badge-terminated { background: #fdecec; color: #cc1016; }
-  .badge-active { background: #e9f8f0; color: #057642; }
-  .badge-replacement { background: #fdf3e3; color: #b67100; }
-  .dark .badge-terminated { background: #3a1c1e; color: #ff9b9b; }
-  .dark .badge-active { background: #16332a; color: #6fd3a3; }
-  .dark .badge-replacement { background: #3a2c14; color: #f8c77e; }
+  .ticket-box h3 { margin: 0 0 6px !important; color: #1c6b3a; }
+  .ticket-box p { font-size: .86rem; color: #1c6b3a; }
+  .ticket-ref { font-weight: 700; }
 
-  footer {
-    text-align: center;
-    color: var(--muted-2);
-    font-size: 0.8rem;
-    padding: 20px 0 40px;
+  .tracker { display: flex; align-items: flex-start; margin: 22px 0 6px; }
+  .tracker-step { flex: 1; text-align: center; position: relative; }
+  .tracker-step::before {
+    content: ''; position: absolute; top: 13px; left: -50%; width: 100%; height: 2px;
+    background: var(--border); z-index: 0;
   }
+  .tracker-step:first-child::before { display: none; }
+  .tracker-step.done::before { background: #1c6b3a; }
+  .tracker-dot {
+    position: relative; z-index: 1; width: 28px; height: 28px; margin: 0 auto 6px;
+    border-radius: 50%; background: #fff; border: 2px solid var(--border);
+    display: grid; place-items: center; font-size: .8rem; font-weight: 700; color: var(--muted-2);
+  }
+  .tracker-step.done .tracker-dot { background: #1c6b3a; border-color: #1c6b3a; color: #fff; }
+  .tracker-step.current .tracker-dot { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 4px #eaf3fb; }
+  .tracker-label { font-size: .8rem; color: var(--muted); }
+  .tracker-step.done .tracker-label,
+  .tracker-step.current .tracker-label { color: var(--text); font-weight: 600; }
+
+  .status-note { font-size: .84rem; color: var(--muted); text-align: center; margin-top: 10px; }
+  .q-recap {
+    border: 1px solid var(--border-soft); border-radius: var(--radius);
+    padding: 12px 14px; margin-top: 16px; background: #fafafa; font-size: .85rem;
+  }
+  .q-recap .q-recap-label { font-size: .76rem; color: var(--muted); margin-bottom: 3px; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px 20px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="linkedin-mark">in</span>
-      Swap Contracts
+
+<!-- ── Support agent strip ─────────────────────────────── -->
+<div class="agent-bar">
+  <span>LICSA | Logged in as customer support agent</span>
+  <a class="pill-btn" href="swap-csp.html" style="text-decoration:none;">Back to CSP</a>
+  <span>Support admin</span>
+</div>
+
+<!-- ── LinkedIn header ─────────────────────────────────── -->
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">in</span>
+    <span class="word">Admin Center</span>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-circle help" title="Help">?</button>
+    <button class="icon-circle" title="Account">NV</button>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- ── Sidebar ───────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="account-block">
+      <span class="stripe"></span>
+      <div>
+        <div class="account-name">Northwind Talent Group</div>
+        <div class="account-sub">billing.ops@northwindtalent.co.uk</div>
+      </div>
     </div>
-    <button class="theme-toggle" id="theme-toggle">🌙 Dark</button>
-  </header>
+    <div class="side-nav">
+      <a href="swap-admin-center.html#overview">Overview</a>
+      <a href="swap-admin-center.html#contracts" class="active">Contracts &amp; orders</a>
+      <a href="swap-admin-center.html#transactions">Transactions</a>
+    </div>
+  </nav>
 
-  <main>
-    <h1>Swap Contracts</h1>
-    <p class="subtitle">Browse the contract pages in this chain — each shows its swapped-out/swapped-in relationships.</p>
-
-    <h2 class="group-title">Master Agreement FLD3849201756</h2>
-    <div class="contract-list">
-      <a class="contract-card" href="contract-FLD3849201756-1001.html">
-        <div class="contract-id">FLD3849201756-1001 <span class="badge badge-terminated">Terminated</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
-      <a class="contract-card" href="swap-csp.html">
-        <div class="contract-id">FLD3849201756-1002 <span class="badge badge-terminated">Terminated</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
-      <a class="contract-card" href="swap-contracts-1003.html">
-        <div class="contract-id">FLD3849201756-1003 <span class="badge badge-active">Active</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
+  <!-- ── Content ───────────────────────────────────────── -->
+  <div class="content">
+    <div class="page-head">
+      <div class="breadcrumb"><a href="swap-csp.html" data-panel="contracts">Contracts</a> &nbsp;❯</div>
+      <div class="title-row">
+        <h1>FLD1684402267905</h1>
+        <div class="head-actions">
+          <button class="btn-outline" id="swap-explain-btn">⇄ Swap explanation</button>
+          <button class="btn-outline">⤓ Download order forms</button>
+        </div>
+      </div>
+      <div class="meta-strip">
+        <span class="meta-item">🕐 5 months</span><span class="dot">·</span>
+        <span class="meta-item">📅 Billed quarterly</span><span class="dot">·</span>
+        <span class="meta-item">💷 £2,862.26 total value</span>
+      </div>
     </div>
 
-    <h2 class="group-title">Master Agreement FLD9271048302</h2>
-    <div class="contract-list">
-      <a class="contract-card" href="contract-FLD9271048302-2001.html">
-        <div class="contract-id">FLD9271048302-2001 <span class="badge badge-replacement">Replacement</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
-      <a class="contract-card" href="contract-FLD9271048302-2002.html">
-        <div class="contract-id">FLD9271048302-2002 <span class="badge badge-active">Active</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
+    <div class="cards">
+
+      <!-- Overview -->
+      <section class="card" id="overview">
+        <h2>Overview</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th><th>Status</th><th>Start - end date</th>
+              <th>PO number</th><th>Payment method</th><th>Value</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="desc-id">FLD1684402267905</div>
+                <div class="desc-sub">
+                  Main ·
+                  <span class="prod-wrap">
+                    <button class="prod-trigger" aria-haspopup="true">2 products ▾</button>
+                    <span class="prod-pop">
+                      <h4>Products purchased</h4>
+                      <span class="prod-line">
+                        <span class="pname">Recruiter Professional Services Plus</span>
+                        <span class="pright"><span class="pamt">£9,540.00</span><br><span class="punits">3 units</span></span>
+                      </span>
+                      <span class="prod-line">
+                        <span class="pname">Hiring Assistant Tier 1 for RPS Plus</span>
+                        <span class="pright"><span class="pamt">£1,908.00</span><br><span class="punits">3 units</span></span>
+                      </span>
+                      <span class="tax-note">+ applicable taxes</span>
+                    </span>
+                  </span>
+                </div>
+                <div class="desc-sub rep-link">
+                  Replaced by <a href="swap-contracts-1003.html">FLD1684402267905-R1</a>
+                </div>
+              </td>
+              <td><span class="status-pill status-cancelled">Cancelled</span></td>
+              <td>Mar 13, 2026 - Aug 13, 2026</td>
+              <td>–</td>
+              <td><span class="pay-method">📄 Invoice</span></td>
+              <td>£5,724.50</td>
+              <td><button class="icon-btn" title="Download order form">⤓</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="desc-id">FLD1684402267905-S4-1</div>
+                <div class="desc-sub">
+                  Cancellation ·
+                  <span class="prod-wrap">
+                    <button class="prod-trigger" aria-haspopup="true">2 products ▾</button>
+                    <span class="prod-pop">
+                      <h4>Products purchased</h4>
+                      <span class="prod-line">
+                        <span class="pname">Hiring Assistant Tier 1 for RPS Plus</span>
+                        <span class="pright"><span class="pamt">£0.00</span><br><span class="punits">-3 units</span></span>
+                      </span>
+                      <span class="prod-line">
+                        <span class="pname">Recruiter Professional Services Plus</span>
+                        <span class="pright"><span class="pamt">(£2,662.24)</span><br><span class="punits">-3 units</span></span>
+                      </span>
+                      <span class="tax-note">+ applicable taxes</span>
+                    </span>
+                  </span>
+                </div>
+                <div class="desc-sub rep-link">
+                  Replaced by <a href="swap-contracts-1003.html">FLD1684402267905-R1</a>
+                </div>
+              </td>
+              <td><span class="status-pill status-cancelled">Cancelled</span></td>
+              <td>Jun 1, 2026 - Aug 13, 2026</td>
+              <td>–</td>
+              <td><span class="pay-method">📄 Invoice</span></td>
+              <td class="neg-value">(£2,662.24)</td>
+              <td><button class="icon-btn" title="Download order form">⤓</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="desc-id">FLD1684402267905-R1</div>
+                <div class="desc-sub">
+                  Replacement ·
+                  <span class="prod-wrap">
+                    <button class="prod-trigger" aria-haspopup="true">2 products ▾</button>
+                    <span class="prod-pop">
+                      <h4>Products purchased</h4>
+                      <span class="prod-line">
+                        <span class="pname">Recruiter Professional Services Plus</span>
+                        <span class="pright"><span class="pamt">£11,448.00</span><br><span class="punits">4 units</span></span>
+                      </span>
+                      <span class="prod-line">
+                        <span class="pname">Hiring Assistant Tier 2 for RPS Plus</span>
+                        <span class="pright"><span class="pamt">£3,180.00</span><br><span class="punits">4 units</span></span>
+                      </span>
+                      <span class="tax-note">+ applicable taxes</span>
+                    </span>
+                  </span>
+                </div>
+                <div class="desc-sub rep-link">
+                  Replaces <a href="swap-csp.html">FLD1684402267905</a>
+                </div>
+              </td>
+              <td><span class="status-pill status-active">Active</span></td>
+              <td>Aug 14, 2026 - Aug 13, 2027</td>
+              <td>PO-NW-88214</td>
+              <td><span class="pay-method">📄 Invoice</span></td>
+              <td>£14,628.00</td>
+              <td><button class="icon-btn" title="Download order form">⤓</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Products -->
+      <section class="card">
+        <h2>Products</h2>
+        <table>
+          <thead><tr><th>Product name</th><th>Quantity purchased</th><th>Utilized</th></tr></thead>
+          <tbody>
+            <tr><td>Recruiter Professional Services Plus</td><td>0</td><td>Not Available <span title="Utilisation reporting is unavailable for cancelled contracts.">ⓘ</span></td></tr>
+            <tr><td>Hiring Assistant Tier 1 for RPS Plus</td><td>0</td><td>Not Available <span title="Utilisation reporting is unavailable for cancelled contracts.">ⓘ</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Renewal information -->
+      <section class="card">
+        <h2>Renewal information</h2>
+        <p class="card-note">Parent and its add-ons renew into 1 consolidated contract.</p>
+        <div class="def-grid">
+          <div><div class="def-label">Contract start date</div><div class="def-value">March 13, 2026</div></div>
+          <div><div class="def-label">Date of renewal</div><div class="def-value">August 13, 2026</div></div>
+          <div><div class="def-label">Auto-renew</div><div class="def-value"><span class="no-mark">✖</span> No</div></div>
+          <div><div class="def-label">Renewal term</div><div class="def-value">1 year</div></div>
+        </div>
+      </section>
+
+      <!-- Billing information -->
+      <section class="card" id="transactions">
+        <h2>Billing information</h2>
+        <p class="card-note">
+          <a href="swap-csp.html" data-panel="customer">Click here</a>
+          to request a change in billing frequency or payment method
+        </p>
+        <h3 style="font-size:.92rem;font-weight:600;margin:16px 0 12px;">Company information</h3>
+        <div class="def-grid">
+          <div><div class="def-label">Bill to address</div><div class="def-value">Northwind Talent Group Ltd<br>44 Ludgate Hill, London EC4M 7AW</div></div>
+          <div><div class="def-label">Ship to address</div><div class="def-value">Northwind Talent Group Ltd<br>44 Ludgate Hill, London EC4M 7AW</div></div>
+          <div><div class="def-label">Tax registration ID</div><div class="def-value">GB 418 2276 01</div></div>
+          <div><div class="def-label">Tax exemption details</div><div class="def-value">–</div></div>
+        </div>
+      </section>
+
+    </div>
+    <footer>Placeholder data for demonstration purposes only — not connected to live contract or billing systems.</footer>
+  </div>
+</div>
+
+<!-- ── Swap explanation modal ────────────────────────────── -->
+<div class="overlay" id="swap-overlay" role="dialog" aria-modal="true" aria-labelledby="swap-title">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="swap-title">Swap explanation</h2>
+        <p>Contract FLD1684402267905 &nbsp;·&nbsp; swapped on 13 August 2026</p>
+      </div>
+      <button class="modal-close" id="swap-close" aria-label="Close">✕</button>
     </div>
 
-    <h2 class="group-title">Master Agreement FLD5530184927</h2>
-    <div class="contract-list">
-      <a class="contract-card" href="contract-FLD5530184927-3001.html">
-        <div class="contract-id">FLD5530184927-3001 <span class="badge badge-active">Active</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
+    <div class="modal-body">
+      <h3>What a contract swap is</h3>
+      <p>
+        A swap replaces an in-flight contract with a new one — usually because you
+        upgraded, changed product mix, or adjusted licence counts mid-term. The
+        original contract is cancelled from the swap date, and any amount you have
+        already been billed for the unused period is credited back to you.
+      </p>
+
+      <h3>How the swap was processed</h3>
+      <ol class="step-list">
+        <li><b>Swap requested</b> — an amendment order was raised against FLD1684402267905 on 28 May 2026.</li>
+        <li><b>Original contract cancelled (debooked)</b> — the remaining term from 1 June 2026 to 13 August 2026 was removed from the original contract. This is the line shown as <b>FLD1684402267905-S4-1</b>.</li>
+        <li><b>Unused value calculated</b> — the debooking amount is the pro-rata value of the licences you had paid for but not yet consumed.</li>
+        <li><b>Credit memo generated</b> — a credit note for the debooked value was issued and applied against the original invoice.</li>
+        <li><b>Replacement contract activated</b> — <a href="swap-contracts-1003.html">FLD1684402267905-R1</a> started on 14 August 2026 and is billed on its own schedule.</li>
+      </ol>
+
+      <div class="divider"></div>
+
+      <h3>Debooking / cancellation amount</h3>
+      <div class="fig-grid">
+        <div class="fig"><div class="fig-label">Original contract value</div><div class="fig-value">£5,724.50</div></div>
+        <div class="fig"><div class="fig-label">Debooked (cancelled) amount</div><div class="fig-value neg">(£2,662.24)</div></div>
+        <div class="fig"><div class="fig-label">Net value retained</div><div class="fig-value">£3,062.26</div></div>
+        <div class="fig"><div class="fig-label">Replacement contract value</div><div class="fig-value pos">£14,628.00</div></div>
+      </div>
+      <p style="margin-top:10px;color:var(--muted);font-size:.83rem;">
+        Debooking covers 74 unused days across 3 units of Recruiter Professional
+        Services Plus. Hiring Assistant Tier 1 debooked at £0.00 because it was
+        bundled at no additional charge.
+      </p>
+
+      <h3>Credit memo</h3>
+      <div class="def-grid">
+        <div><div class="def-label">Credit memo generated</div><div class="def-value">Yes — CM-2026-0084417</div></div>
+        <div><div class="def-label">Credit memo date</div><div class="def-value">15 August 2026</div></div>
+        <div><div class="def-label">Credit amount</div><div class="def-value">£2,662.24</div></div>
+        <div><div class="def-label">Applied to invoice</div><div class="def-value">INV-2026-3391208</div></div>
+      </div>
+      <div class="applied-note">
+        ✓ The credit memo has been <b>applied in full</b> to the original invoice
+        INV-2026-3391208. No refund to your payment method is due, and no further
+        action is needed from you.
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Question form -->
+      <div id="ask-section">
+        <h3>Still have a question about this swap?</h3>
+        <p style="color:var(--muted);margin-bottom:14px;">
+          Send it to the billing team and we will raise a ticket for you.
+        </p>
+        <form id="ask-form" novalidate>
+          <div class="f-two">
+            <div class="f-row">
+              <label class="f-label" for="q-name">Your name</label>
+              <input class="f-input" id="q-name" type="text" autocomplete="name" />
+            </div>
+            <div class="f-row">
+              <label class="f-label" for="q-email">Email for updates</label>
+              <input class="f-input" id="q-email" type="email" autocomplete="email" />
+            </div>
+          </div>
+          <div class="f-row">
+            <label class="f-label" for="q-topic">What is your question about?</label>
+            <select class="f-select" id="q-topic">
+              <option value="Debooking / cancellation amount">Debooking / cancellation amount</option>
+              <option value="Credit memo">Credit memo</option>
+              <option value="Invoice or payment">Invoice or payment</option>
+              <option value="Replacement contract">Replacement contract</option>
+              <option value="Something else">Something else</option>
+            </select>
+          </div>
+          <div class="f-row">
+            <label class="f-label" for="q-message">Your question</label>
+            <textarea class="f-textarea" id="q-message" placeholder="Tell us what you would like clarified…"></textarea>
+          </div>
+          <div class="f-error" id="q-error">Please fill in your name, a valid email address, and your question.</div>
+          <button class="btn-solid" type="submit">Submit question</button>
+        </form>
+      </div>
+
+      <!-- Ticket confirmation -->
+      <div id="ticket-section" style="display:none;">
+        <div class="ticket-box">
+          <h3>Thanks — your ticket has been raised</h3>
+          <p>
+            Reference <span class="ticket-ref" id="ticket-ref">—</span>.
+            A member of the billing team will be in touch as soon as possible at
+            <span id="ticket-email">—</span>.
+          </p>
+        </div>
+
+        <h3>Request progress</h3>
+        <div class="tracker" id="tracker">
+          <div class="tracker-step" data-step="0"><div class="tracker-dot">1</div><div class="tracker-label">Submitted</div></div>
+          <div class="tracker-step" data-step="1"><div class="tracker-dot">2</div><div class="tracker-label">In progress</div></div>
+          <div class="tracker-step" data-step="2"><div class="tracker-dot">3</div><div class="tracker-label">Resolved</div></div>
+        </div>
+        <p class="status-note" id="status-note">Submitted — waiting to be picked up by the billing team.</p>
+
+        <div class="q-recap">
+          <div class="q-recap-label">Your question</div>
+          <div id="ticket-topic" style="font-weight:600;margin-bottom:4px;"></div>
+          <div id="ticket-message"></div>
+        </div>
+
+        <div class="modal-foot" style="padding-left:0;padding-right:0;">
+          <button class="btn-outline" id="advance-btn">Refresh status</button>
+          <button class="btn-outline" id="ask-another-btn">Ask another question</button>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>
 
-    <h2 class="group-title">Master Agreement FLD7710293845</h2>
-    <div class="contract-list">
-      <a class="contract-card" href="contract-FLD7710293845-4001.html">
-        <div class="contract-id">FLD7710293845-4001 <span class="badge badge-terminated">Terminated</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
-      <a class="contract-card" href="contract-FLD7710293845-4002.html">
-        <div class="contract-id">FLD7710293845-4002 <span class="badge badge-replacement">Replacement</span></div>
-        <div class="contract-desc">View contract details and its swap history</div>
-      </a>
-    </div>
-  </main>
+<script>
+(function () {
+  'use strict';
 
-  <footer>Placeholder data for demonstration purposes only — not connected to live contract systems.</footer>
-
-  <script>
-    const toggleBtn = document.getElementById('theme-toggle');
-    toggleBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      toggleBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+  /* ── Products popover: also works on click/tap ───────── */
+  document.querySelectorAll('.prod-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var pop = btn.parentElement.querySelector('.prod-pop');
+      document.querySelectorAll('.prod-pop.show').forEach(function (p) {
+        if (p !== pop) { p.classList.remove('show'); }
+      });
+      pop.classList.toggle('show');
     });
-  </script>
+  });
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.prod-pop.show').forEach(function (p) { p.classList.remove('show'); });
+  });
+
+  /* ── Swap explanation modal ──────────────────────────── */
+  var overlay    = document.getElementById('swap-overlay');
+  var openBtn    = document.getElementById('swap-explain-btn');
+  var closeBtn   = document.getElementById('swap-close');
+  var askSection = document.getElementById('ask-section');
+  var tktSection = document.getElementById('ticket-section');
+
+  function openModal()  { overlay.classList.add('open');  document.body.style.overflow = 'hidden'; }
+  function closeModal() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) { closeModal(); } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) { closeModal(); }
+  });
+
+  /* ── Ticket state (persists across refreshes) ────────── */
+  var STORAGE_KEY = 'swapTicket-FLD1684402267905';
+  var STAGES = [
+    { label: 'Submitted',   note: 'Submitted — waiting to be picked up by the billing team.' },
+    { label: 'In progress', note: 'In progress — a billing specialist is reviewing your question.' },
+    { label: 'Resolved',    note: 'Resolved — the billing team has replied by email. Thanks for your patience.' }
+  ];
+
+  function loadTicket() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }
+    catch (err) { return null; }
+  }
+  function saveTicket(t) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); } catch (err) { /* storage unavailable */ }
+  }
+  function clearTicket() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (err) { /* storage unavailable */ }
+  }
+
+  function renderTracker(stage) {
+    document.querySelectorAll('#tracker .tracker-step').forEach(function (el) {
+      var i = Number(el.dataset.step);
+      el.classList.toggle('done', i <= stage);
+      el.classList.toggle('current', i === stage);
+    });
+    var note = document.getElementById('status-note');
+    if (note) { note.textContent = STAGES[stage].note; }
+    var adv = document.getElementById('advance-btn');
+    if (adv) {
+      adv.textContent = stage >= STAGES.length - 1 ? 'Status up to date' : 'Refresh status';
+      adv.disabled = stage >= STAGES.length - 1;
+      adv.style.opacity = stage >= STAGES.length - 1 ? '.55' : '';
+      adv.style.cursor = stage >= STAGES.length - 1 ? 'default' : 'pointer';
+    }
+  }
+
+  function showTicket(t) {
+    document.getElementById('ticket-ref').textContent     = t.ref;
+    document.getElementById('ticket-email').textContent   = t.email;
+    document.getElementById('ticket-topic').textContent   = t.topic;
+    document.getElementById('ticket-message').textContent = t.message;
+    askSection.style.display = 'none';
+    tktSection.style.display = '';
+    renderTracker(t.stage);
+  }
+
+  function showForm() {
+    tktSection.style.display = 'none';
+    askSection.style.display = '';
+  }
+
+  /* ── Form submission ─────────────────────────────────── */
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name    = document.getElementById('q-name').value.trim();
+    var email   = document.getElementById('q-email').value.trim();
+    var topic   = document.getElementById('q-topic').value;
+    var message = document.getElementById('q-message').value.trim();
+    var errEl   = document.getElementById('q-error');
+
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name || !emailOk || !message) { errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+
+    var ticket = {
+      ref: 'BILL-' + String(Math.floor(100000 + Math.random() * 900000)),
+      name: name, email: email, topic: topic, message: message,
+      stage: 0, created: new Date().toISOString()
+    };
+    saveTicket(ticket);
+    showTicket(ticket);
+    tktSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  /* ── Progress the ticket status ──────────────────────── */
+  document.getElementById('advance-btn').addEventListener('click', function () {
+    var t = loadTicket();
+    if (!t || t.stage >= STAGES.length - 1) { return; }
+    t.stage += 1;
+    saveTicket(t);
+    renderTracker(t.stage);
+  });
+
+  document.getElementById('ask-another-btn').addEventListener('click', function () {
+    clearTicket();
+    document.getElementById('ask-form').reset();
+    showForm();
+  });
+
+  /* ── Restore any existing ticket on load ─────────────── */
+  var existing = loadTicket();
+  if (existing && typeof existing.stage === 'number') { showTicket(existing); }
+
+  /* ── Breadcrumb / billing deep links to the CSP page ─── */
+  document.querySelectorAll('[data-panel]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) { return; }
+      e.preventDefault();
+      window.location.href = 'swap-csp.html#' + link.dataset.panel;
+    });
+  });
+})();
+</script>
 </body>
 </html>
