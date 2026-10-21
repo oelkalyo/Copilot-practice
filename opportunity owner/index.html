@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Opportunity Owner</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#f3f2ef;--surface:#fff;--surface-alt:#f8fafc;--border:#e0e0e0;--text:rgba(0,0,0,.9);--muted:rgba(0,0,0,.6);--accent:#0a66c2;--accent-hover:#004182;--radius:8px;--shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.02)}
+  body{font-family:"LinkedIn Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+  .topbar{background:#1d2226;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+  .linkedin-mark{width:28px;height:28px;border-radius:6px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+  main{max-width:980px;margin:28px auto;padding:0 20px 60px}
+  .breadcrumb{font-size:.85rem;color:var(--muted);margin-bottom:16px}
+  .breadcrumb a{color:var(--accent);text-decoration:none}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+  .header-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  h1{font-size:1.4rem;margin-bottom:4px}
+  .contract-id{color:var(--muted);font-size:.95rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:18px}
+  .field-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:rgba(0,0,0,.45);margin-bottom:4px}
+  .field-value{font-size:.95rem;font-weight:500}
+  .sales-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-alt)}
+  .sales-meta{display:flex;flex-direction:column;gap:4px}
+  .sales-name{font-weight:700}
+  .sales-email{color:var(--muted);font-size:.9rem}
+  .btn{border:none;border-radius:999px;padding:10px 16px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+  .btn:hover{background:var(--accent-hover)}
+  .btn-secondary{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+  .btn-secondary:hover{background:#eaf3fb}
+  .section-title{font-size:1.05rem;margin-bottom:8px}
+  .section-sub{color:var(--muted);font-size:.9rem;margin-bottom:14px}
+  .email-panel{display:none}
+  .email-panel.open{display:block}
+  .email-grid{display:grid;grid-template-columns:72px 1fr;gap:10px;margin-bottom:10px;align-items:center}
+  .email-grid label{color:var(--muted);font-size:.86rem}
+  .email-grid input,.email-grid textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font:inherit;background:#fff}
+  .email-grid textarea{min-height:120px;resize:vertical}
+  .notice{display:none;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:#eef6ff;color:var(--text)}
+  .notice.show{display:block}
+  .footer-note{text-align:center;color:var(--muted);font-size:.8rem;padding:12px 0 32px}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="linkedin-mark">in</span>Opportunity Owner</div>
+    <div>Sales team</div>
+  </header>
+  <main>
+    <div class="breadcrumb"><a href="../index.html">Admin Center</a> / Opportunity Owner</div>
+    <section class="card">
+      <div class="header-row">
+        <div>
+          <h1 id="contract-title">Contract</h1>
+          <div class="contract-id" id="contract-id">Loading...</div>
+        </div>
+        <button class="btn btn-secondary" id="back-btn">Back</button>
+      </div>
+      <div class="grid" style="margin-top:20px">
+        <div><div class="field-label">Account</div><div class="field-value" id="account-name"></div></div>
+        <div><div class="field-label">Product</div><div class="field-value" id="product-name"></div></div>
+        <div><div class="field-label">Sales representative</div><div class="field-value" id="sales-name"></div></div>
+        <div><div class="field-label">Email address</div><div class="field-value" id="sales-email"></div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Sales contact</div>
+      <div class="section-sub">Use Contact to open an email request to the sales representative.</div>
+      <div class="sales-row">
+        <div class="sales-meta">
+          <div class="sales-name" id="sales-row-name"></div>
+          <div class="sales-email" id="sales-row-email"></div>
+        </div>
+        <button class="btn" id="contact-btn">Contact</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Communication</div>
+      <div class="notice" id="sent-note"></div>
+      <div class="email-panel" id="email-panel">
+        <div class="email-grid"><label for="to">To</label><input id="to" type="email"></div>
+        <div class="email-grid"><label for="subject">Subject</label><input id="subject" type="text"></div>
+        <div class="email-grid"><label for="message">Message</label><textarea id="message" placeholder="Write your request here..."></textarea></div>
+        <button class="btn" id="send-btn">Send email</button>
+      </div>
+    </section>
+  </main>
+  <div class="footer-note">Placeholder data only.</div>
+
+  <script>
+    const contracts = [
+      { id:'FLD3849201756-1002', account:'Acme Corporation', product:'LinkedIn Recruiter', sales:{ name:'Avery Johnson', email:'avery.johnson@linkedin.example' } },
+      { id:'FLD3849201756-1003', account:'Globex Industries', product:'Sales Navigator', sales:{ name:'Morgan Lee', email:'morgan.lee@linkedin.example' } },
+      { id:'FLD9271048302-2002', account:'Initech Solutions', product:'Talent Insights', sales:{ name:'Taylor Smith', email:'taylor.smith@linkedin.example' } }
+    ];
+    const current = contracts[0];
+    const params = new URLSearchParams(location.search);
+    const id = params.get('contract') || current.id;
+    const contract = contracts.find(c => c.id === id) || current;
+
+    const els = {
+      title: document.getElementById('contract-title'),
+      id: document.getElementById('contract-id'),
+      account: document.getElementById('account-name'),
+      product: document.getElementById('product-name'),
+      salesName: document.getElementById('sales-name'),
+      salesEmail: document.getElementById('sales-email'),
+      rowName: document.getElementById('sales-row-name'),
+      rowEmail: document.getElementById('sales-row-email'),
+      panel: document.getElementById('email-panel'),
+      to: document.getElementById('to'),
+      subject: document.getElementById('subject'),
+      message: document.getElementById('message'),
+      note: document.getElementById('sent-note')
+    };
+
+    els.title.textContent = `Opportunity Owner – ${contract.id}`;
+    els.id.textContent = contract.id;
+    els.account.textContent = contract.account;
+    els.product.textContent = contract.product;
+    els.salesName.textContent = contract.sales.name;
+    els.salesEmail.textContent = contract.sales.email;
+    els.rowName.textContent = contract.sales.name;
+    els.rowEmail.textContent = contract.sales.email;
+    els.to.value = contract.sales.email;
+    els.subject.value = `Question about ${contract.id}`;
+
+    document.getElementById('contact-btn').addEventListener('click', () => {
+      els.panel.classList.add('open');
+      els.message.focus();
+    });
+
+    document.getElementById('send-btn').addEventListener('click', () => {
+      const msg = els.message.value.trim();
+      if (!msg) return;
+      els.note.className = 'notice show';
+      els.note.innerHTML = `Email sent to <b>${els.to.value}</b>. We have received your request and will be in touch soon.`;
+      els.message.value = '';
+    });
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = '../index.html#contracts';
+    });
+  </script>
+</body>
+</html>
